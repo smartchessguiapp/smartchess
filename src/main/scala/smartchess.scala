@@ -1,0 +1,26 @@
+package smartchess
+
+////////////////////////////////////////////////////////////////////
+
+import javafx.application._
+
+////////////////////////////////////////////////////////////////////
+//
+// entry point of the application
+//
+////////////////////////////////////////////////////////////////////
+
+object Start
+{
+
+	def main(args: Array[String])
+	{
+
+		// starts the JavaFX application of GuiClass ( defined in guisystem/builder.scala )
+
+		Application.launch(classOf[GuiClass], args: _*)
+
+	}
+
+}
+

@@ -1,0 +1,14 @@
+
+
+target/
+
+*.xml
+*.txt
+*.bat
+*.pgn
+*.html
+
+!ReadMe.txt
+!AntichessSolutionLong/*.txt
+
+
