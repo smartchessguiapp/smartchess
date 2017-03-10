@@ -119,6 +119,8 @@ object MyAppTraining
 
 	def MakeTrainingMove
 	{
+		val san=g.current_node.genSan
+
 		val ppos=AddPositionToBook(g.current_node.genTruncFen)
 
 		var psans=ppos.GetSansWithAnnotSorted()
@@ -136,7 +138,7 @@ object MyAppTraining
 			Update
 		}
 
-		val hasmove=psans.contains(g.current_node.genSan)
+		val hasmove=psans.contains(san)		
 
 		val bpos=AddPositionToBook(g.report_trunc_fen)
 

@@ -111,11 +111,32 @@ object MyAppImpl
 	{
 		if(IsBuildTrainingMode)
 		{
-			val sans=AddPositionToBook(g.report_trunc_fen).GetSansWithAnnotSorted()
-			if(san!=sans(0))
-			{	
+			def BuildTrainingMoveCallback()
+			{
 				Update
-				
+
+				ManualMoveMade(san)
+			}
+
+			val ppos=AddPositionToBook(g.report_trunc_fen)
+
+			val sans=ppos.GetSansWithAnnotSorted()
+
+			val hasmove=sans.contains(san)
+
+			if(!hasmove)
+			{	
+				Eval.EvalAll(1,deep=true,thismove=san,callback=BuildTrainingMoveCallback)
+
+				return
+			}
+
+			val ismate=ppos.entries(san).IsMate
+
+			if(!ismate)
+			{
+				Update
+
 				return
 			}
 		}
