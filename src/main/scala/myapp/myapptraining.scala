@@ -17,7 +17,9 @@ object MyAppTraining
 
 	def MakePlayMove
 	{
-		SelectMovesTab
+		MyActor.queuedExecutor ! ExecutionItem(client="MakePlayMove",code=new Runnable{def run{
+			SelectMovesTab
+		}})						
 
 		Eval.EvalAll(add=true,callback=MakePlayMoveCallback)
 	}
@@ -92,27 +94,33 @@ object MyAppTraining
 
 			MakeSanMove(san)
 
+			MyActor.queuedExecutor ! ExecutionItem(client="BuildTrainingMove",code=new Runnable{def run{
+				Update
+			}})									
+
 			val b=new board
 			b.set_from_fen(g.report_fen)
 			b.genMoveList
 
 			if(b.move_list_sans.length<=0)
 			{
-				SystemPopUp("Training message","""<font color="green"><b>Training problem solved.</b></font>""")
-
-				Update
+				SystemPopUp("Training message","""<font color="green"><b>Training problem solved.</b></font>""")				
 
 				return
 			}
 
-			SelectBookTab
+			MyActor.queuedExecutor ! ExecutionItem(client="BuildTrainingMove",code=new Runnable{def run{
+				SelectBookTab
+			}})									
 
 			Eval.EvalAll(add=true,deep=true)
 
 			return
 		}
 
-		SelectMovesTab
+		MyActor.queuedExecutor ! ExecutionItem(client="BuildTrainingMove",code=new Runnable{def run{
+			SelectMovesTab
+		}})
 
 		MakeTrainingMove
 	}
@@ -135,7 +143,9 @@ object MyAppTraining
 
 			g.forward
 
-			Update
+			MyActor.queuedExecutor ! ExecutionItem(client="MakeTrainingMove",code=new Runnable{def run{
+				Update
+			}})
 		}
 
 		val hasmove=psans.contains(san)		
@@ -150,7 +160,9 @@ object MyAppTraining
 
 			sans=bpos.GetSansWithAnnotSorted()
 
-			Update
+			MyActor.queuedExecutor ! ExecutionItem(client="MakeTrainingMove",code=new Runnable{def run{
+				Update
+			}})
 		}
 
 		if(sans.length<=0)
@@ -161,7 +173,9 @@ object MyAppTraining
 
 				g.back
 
-				Update
+				MyActor.queuedExecutor ! ExecutionItem(client="MakeTrainingMove",code=new Runnable{def run{
+					Update
+				}})
 
 				return
 			}
@@ -169,7 +183,9 @@ object MyAppTraining
 			{
 				SystemPopUp("Training message","""<font color="green"><b>Training problem solved.</b></font>""")
 
-				Update
+				MyActor.queuedExecutor ! ExecutionItem(client="MakeTrainingMove",code=new Runnable{def run{
+					Update
+				}})
 
 				return
 			}
@@ -181,9 +197,11 @@ object MyAppTraining
 
 		g.makeSanMove(tsan)
 
-		SelectMovesTab
+		MyActor.queuedExecutor ! ExecutionItem(client="MakeTrainingMove",code=new Runnable{def run{
+			SelectMovesTab
 
-		Update
+			Update
+		}})		
 	}
 
 	def HideTrainingScore

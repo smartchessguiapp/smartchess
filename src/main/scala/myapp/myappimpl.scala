@@ -113,19 +113,21 @@ object MyAppImpl
 		{
 			def BuildTrainingMoveCallback()
 			{
-				Update
-
 				ManualMoveMade(san)
 			}
 
 			val ppos=AddPositionToBook(g.report_trunc_fen)
 
-			val sans=ppos.GetSansWithAnnotSorted()
+			val sans=ppos.GetSansWithEvalSorted()
 
 			val hasmove=sans.contains(san)
 
 			if(!hasmove)
-			{	
+			{
+				MyActor.queuedExecutor ! ExecutionItem(client="ManualMoveMade.Update",code=new Runnable{def run{
+					Update
+				}})				
+
 				Eval.EvalAll(1,deep=true,thismove=san,callback=BuildTrainingMoveCallback)
 
 				return
@@ -135,7 +137,9 @@ object MyAppImpl
 
 			if(!ismate)
 			{
-				Update
+				MyActor.queuedExecutor ! ExecutionItem(client="ManualMoveMade.Update",code=new Runnable{def run{
+					Update
+				}})				
 
 				return
 			}
@@ -143,15 +147,13 @@ object MyAppImpl
 
 		MakeSanMove(san)
 
-		Update
-
-		var response=true
+		MyActor.queuedExecutor ! ExecutionItem(client="ManualMoveMade.Update",code=new Runnable{def run{
+			Update
+		}})				
 
 		if(IsPlayMode) MakePlayMove else
 		if(IsBuildTrainingMode) BuildTrainingMove else
-		if(IsTrainingMode) MakeTrainingMove else response=false
-
-		if(response) Update
+		if(IsTrainingMode) MakeTrainingMove
 	}
 
 	def GuiBoardClicked(file:Int)
