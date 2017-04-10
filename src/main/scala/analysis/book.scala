@@ -472,7 +472,7 @@ case class BookPosition(
 
 		collect_pv_recursive(0,book,maxdepth)
 
-		if(maxdepth > 1) pvgame.current_line_pgn
+		if(maxdepth > 1) return pvgame.current_line_pgn
 
 		val moves=pvgame.current_line_moves
 
