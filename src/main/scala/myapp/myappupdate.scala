@@ -37,7 +37,17 @@ object MyAppUpdate
 			val pgnhtmlcontent=g.report_pgn_html(g.current_node)
 
 			MyActor.queuedExecutor ! ExecutionItem(client="UpdatePgnHtml",code=new Runnable{def run{
-				LoadWebContent("{pgnwebview}",pgnhtmlcontent)
+				val mi=pgnhtmlcontent.indexOf("padding: 3px")
+
+				val len=pgnhtmlcontent.length.toDouble
+
+				var v=0.0
+
+				if(mi>2000) {
+					v=(mi-2000)/len
+				}
+
+				LoadWebContentAndScrollTo("{pgnwebview}",pgnhtmlcontent,v)
 			}})			
 		}
 	}
