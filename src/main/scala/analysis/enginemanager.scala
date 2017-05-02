@@ -121,6 +121,7 @@ case class ActiveChangedMsg(index:Int,value:Boolean)
 case class ShutDownAllMsg(restartactorsystem:Boolean=true)
 case object StartupAllMsg
 case object Tick
+case class HasLoadedEnginesMsg(noenginescallback:() => Unit,hasenginescallback:() => Unit)
 
 case class AwaitStopAllAndSendMessageMsg(aref:ActorRef,msg:Any)
 
@@ -261,6 +262,8 @@ case class EngineList(
 	{
 		for(e <- engines.toList if(e.IsLoaded)) yield e
 	}
+
+	def HasLoadedEngines:Boolean = ( GetLoadedEngines.length > 0 )
 
 	def GetRunningEngines:List[Engine] =
 	{
@@ -558,6 +561,8 @@ case class EngineList(
 		case sda:ShutDownAllMsg => ShutDownAll(sda.restartactorsystem)
 
 		case StartupAllMsg => StartupAll
+
+		case hle:HasLoadedEnginesMsg => if(!HasLoadedEngines) hle.noenginescallback() else hle.hasenginescallback()
 
 		case ac:ActiveChangedMsg =>
 		{

@@ -76,53 +76,64 @@ object MyAppTraining
 
 	def BuildTrainingMove
 	{
-		val fen=g.report_fen
-		val tfen=g.report_trunc_fen
-		val b=new board
-		b.set_from_fen(fen)
-		b.genMoveList
-		val bpos=book.add_position(tfen)
-		for(san <- b.move_list_sans)
+		// first check if there is an active engine
+		EngineManager.enginelist ! HasLoadedEnginesMsg(noenginescallback=NoEnginesCallback,hasenginescallback=HasEnginesCallback)
+
+		def NoEnginesCallback()
 		{
-			val entry=bpos.add_move(san)
-			entry.annot="??"
+			Builder.SystemPopUp("Training error","""<font color="red"><b>No loaded engine.</b></font>""")				
 		}
-		val vsans=bpos.GetVirginSans(book)
-		if(vsans.length>0)
+
+		def HasEnginesCallback()
 		{
-			val san=vsans(0)
-
-			MakeSanMove(san)
-
-			MyActor.queuedExecutor ! ExecutionItem(client="BuildTrainingMove",code=new Runnable{def run{
-				Update
-			}})									
-
+			val fen=g.report_fen
+			val tfen=g.report_trunc_fen
 			val b=new board
-			b.set_from_fen(g.report_fen)
+			b.set_from_fen(fen)
 			b.genMoveList
-
-			if(b.move_list_sans.length<=0)
+			val bpos=book.add_position(tfen)
+			for(san <- b.move_list_sans)
 			{
-				SystemPopUp("Training message","""<font color="green"><b>Training problem solved.</b></font>""")				
+				val entry=bpos.add_move(san)
+				entry.annot="??"
+			}
+			val vsans=bpos.GetVirginSans(book)
+			if(vsans.length>0)
+			{
+				val san=vsans(0)
+
+				MakeSanMove(san)
+
+				MyActor.queuedExecutor ! ExecutionItem(client="BuildTrainingMove",code=new Runnable{def run{
+					Update
+				}})									
+
+				val b=new board
+				b.set_from_fen(g.report_fen)
+				b.genMoveList
+
+				if(b.move_list_sans.length<=0)
+				{
+					SystemPopUp("Training message","""<font color="green"><b>Training problem solved.</b></font>""")				
+
+					return
+				}
+
+				MyActor.queuedExecutor ! ExecutionItem(client="BuildTrainingMove",code=new Runnable{def run{
+					SelectBookTab
+				}})									
+
+				Eval.EvalAll(add=true,deep=true)
 
 				return
 			}
 
 			MyActor.queuedExecutor ! ExecutionItem(client="BuildTrainingMove",code=new Runnable{def run{
-				SelectBookTab
-			}})									
+				SelectMovesTab
+			}})
 
-			Eval.EvalAll(add=true,deep=true)
-
-			return
+			MakeTrainingMove
 		}
-
-		MyActor.queuedExecutor ! ExecutionItem(client="BuildTrainingMove",code=new Runnable{def run{
-			SelectMovesTab
-		}})
-
-		MakeTrainingMove
 	}
 
 	def MakeTrainingMove

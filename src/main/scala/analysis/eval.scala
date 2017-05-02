@@ -749,45 +749,57 @@ object Eval extends Module
 
 	def Search(factor:Int=80)
 	{
-		searchaborted=false
-		evalaborted=false
-		minimaxaborted=false
 
-		searchnodes=0
+		// first check if there is an active engine
+		EngineManager.enginelist ! HasLoadedEnginesMsg(noenginescallback=NoEnginesCallback,hasenginescallback=HasEnginesCallback)
 
-		evalcnt=1
-
-		minimaxafter=GD("{components}#{minimaxafter}",1.0).toInt
-
-		val blob=s"""
-					|<vbox>
-					|<hbox>
-					|<button id="{abort}" text="Abort"/>
-					|<label id="{searchline}"/>
-					|</hbox>
-					|<webview id="{searchresultwebview}"/>
-					|</vbox>
-				""".stripMargin
-
-		def handler(ev:MyEvent)
+		def NoEnginesCallback()
 		{
-			if(ev.kind=="button pressed")
-			{
-				if(ev.Id=="{abort}")
-				{
-					searchaborted=true
-				}
-			}
+			Builder.SystemPopUp("Search error","""<font color="red"><b>No loaded engine.</b></font>""")				
 		}
 
-		Builder.MyStage("{searchdialog}","Search",
-			modal=true,unclosable=true,usewidth=true,useheight=true,handler=handler,blob=blob)
-
-		MyApp.SaveGameState(name="search")
-
-		Future
+		def HasEnginesCallback()
 		{
-			SearchFunc
+			searchaborted=false
+			evalaborted=false
+			minimaxaborted=false
+
+			searchnodes=0
+
+			evalcnt=1
+
+			minimaxafter=GD("{components}#{minimaxafter}",1.0).toInt
+
+			val blob=s"""
+						|<vbox>
+						|<hbox>
+						|<button id="{abort}" text="Abort"/>
+						|<label id="{searchline}"/>
+						|</hbox>
+						|<webview id="{searchresultwebview}"/>
+						|</vbox>
+					""".stripMargin
+
+			def handler(ev:MyEvent)
+			{
+				if(ev.kind=="button pressed")
+				{
+					if(ev.Id=="{abort}")
+					{
+						searchaborted=true
+					}
+				}
+			}
+
+			Builder.MyStage("{searchdialog}","Search",
+				modal=true,unclosable=true,usewidth=true,useheight=true,handler=handler,blob=blob)
+
+			MyApp.SaveGameState(name="search")
+
+			Future
+			{
+				SearchFunc
+			}
 		}
 	}
 
@@ -801,72 +813,83 @@ object Eval extends Module
 		modal:Boolean=true
 	)
 	{
-		evalaborted=false
+		// first check if there is an active engine
+		EngineManager.enginelist ! HasLoadedEnginesMsg(noenginescallback=NoEnginesCallback,hasenginescallback=HasEnginesCallback)
 
-		EngineManager.enginehtmlupdateallowed=false
-
-		val depth=(if(deep) GetDepth+GetBonus else GetDepth)
-		var sans=GetSans(numberlimit,depth)
-		if(thismove!=null) sans=List(thismove)
-		val evaledsans=GetEvaledSans
-
-		var remalgebs:List[String] = null
-
-		if(add)
+		def NoEnginesCallback()
 		{
-			val allsans=GetSans(-1,-1)			
-			val remsans=(for(san <- allsans if(!evaledsans.contains(san))) yield san).toList
-			val b=new board
-			b.set_from_fen(MyApp.g.report_fen)
-			remalgebs=remsans.map(x => b.to_true_algeb(b.sanToMove(x).toAlgeb))
-			if(remalgebs.length<=0)
-			{
-				if(callback!=null) callback()
-				return
-			}
-		}
-		else
-		{
-			if(sans.length<=0)
-			{
-				if(callback!=null) callback()
-				return
-			}
+			Builder.SystemPopUp("Evaluation error","""<font color="red"><b>No loaded engine.</b></font>""")				
 		}
 
-		val blob=s"""
-					|<vbox>
-					|<hbox>
-					|<button id="{abort}" text="Abort"/>
-					|</hbox>
-					|<webview id="{evallogwebview}" height="60.0"/>
-					|<webview id="{evalresultswebview}"/>
-					|</vbox>
-				""".stripMargin
-
-		def handler(ev:MyEvent)
+		def HasEnginesCallback()
 		{
-			if(ev.kind=="button pressed")
+			evalaborted=false
+
+			EngineManager.enginehtmlupdateallowed=false
+
+			val depth=(if(deep) GetDepth+GetBonus else GetDepth)
+			var sans=GetSans(numberlimit,depth)
+			if(thismove!=null) sans=List(thismove)
+			val evaledsans=GetEvaledSans
+
+			var remalgebs:List[String] = null
+
+			if(add)
 			{
-				if(ev.Id=="{abort}")
-				{					
-					Eval.evalmanager ! AbortEvalJobMsg
+				val allsans=GetSans(-1,-1)			
+				val remsans=(for(san <- allsans if(!evaledsans.contains(san))) yield san).toList
+				val b=new board
+				b.set_from_fen(MyApp.g.report_fen)
+				remalgebs=remsans.map(x => b.to_true_algeb(b.sanToMove(x).toAlgeb))
+				if(remalgebs.length<=0)
+				{
+					if(callback!=null) callback()
+					return
 				}
 			}
+			else
+			{
+				if(sans.length<=0)
+				{
+					if(callback!=null) callback()
+					return
+				}
+			}
+
+			val blob=s"""
+						|<vbox>
+						|<hbox>
+						|<button id="{abort}" text="Abort"/>
+						|</hbox>
+						|<webview id="{evallogwebview}" height="60.0"/>
+						|<webview id="{evalresultswebview}"/>
+						|</vbox>
+					""".stripMargin
+
+			def handler(ev:MyEvent)
+			{
+				if(ev.kind=="button pressed")
+				{
+					if(ev.Id=="{abort}")
+					{					
+						Eval.evalmanager ! AbortEvalJobMsg
+					}
+				}
+			}
+
+			MyActor.queuedExecutor ! ExecutionItem(client="EvalAll.openstage",code=new Runnable{def run{
+				Builder.MyStage("{evalalldialog}","Eval at depth "+depth,blob,
+					modal=modal,unclosable=true,usewidth=true,useheight=true,handler=handler)
+
+				Eval.evalmanager ! InitEvalJobMsg(
+					sans=if(add) evaledsans else sans,
+					depth=depth,
+					remalgebs=remalgebs,
+					num=num,
+					callback=callback
+				)
+			}})
 		}
-
-		MyActor.queuedExecutor ! ExecutionItem(client="EvalAll.openstage",code=new Runnable{def run{
-			Builder.MyStage("{evalalldialog}","Eval at depth "+depth,blob,
-				modal=modal,unclosable=true,usewidth=true,useheight=true,handler=handler)
-
-			Eval.evalmanager ! InitEvalJobMsg(
-				sans=if(add) evaledsans else sans,
-				depth=depth,
-				remalgebs=remalgebs,
-				num=num,
-				callback=callback
-			)
-		}})						
 	}
 
 	////////////////////////////////////////////////////////////////////
