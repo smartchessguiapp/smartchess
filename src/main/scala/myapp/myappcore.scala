@@ -248,7 +248,7 @@ object MyAppCore
 					case "{star}" => Star
 					case "{tostar}" => ToStar
 					case "{hint}" => Hint
-					case "{applyboardsettings}" => ApplyBoardSettings
+					case "{applyboardsettings}" => ApplyBoardSettings					
 					case "{showauxbooks}" => GuiShowAuxBooks
 					case "{adduciengine}" => AddEngine(kind="uci")
 					case "{addxboardengine}" => AddEngine(kind="xboard")
@@ -309,6 +309,7 @@ object MyAppCore
 					case "{savepgnas}" => SavePgnAs
 					case "{newpgnlist}" => NewPgnList
 					case "{savepgnlistas}" => SavePgnListAs
+					case "{ratingcharts}" => RatingCharts
 					case "{showauxbooks}" => ShowAuxiliaryBooks
 					case "{addpgngamestobook}" => AddPgnGamesToBook
 					case "{delbook}" => if(Confirm("Do you really want to delete < "+GetCurentBook+" > book ?")) GuiDelBook
@@ -419,6 +420,7 @@ object MyAppCore
 			|<menuitem id="{pastepgnmenu}" text="Paste PGN from clipboard"/>
 			|</menu>
 			|<menu text="Tools">
+			|<menuitem id="{ratingcharts}" text="Rating charts"/>
 			|<menuitem id="{showauxbooks}" text="Show auxiliary books"/>
 			|<menuitem id="{closeauxbooks}" text="Close auxiliary books"/>
 			|<menuitem id="{addpgngamestobook}" text="Add PGN games to book"/>			

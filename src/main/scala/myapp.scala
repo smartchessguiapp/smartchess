@@ -159,6 +159,8 @@ object MyApp
 	def HideTrainingScore = MyAppTraining.HideTrainingScore
 	def MakeTrainingMove = MyAppTraining.MakeTrainingMove
 	def BuildTrainingMove = MyAppTraining.BuildTrainingMove
+	// ratingcharts
+	def RatingCharts = MyAppRatingCharts.RatingCharts
 	// myappauxbooks	
 	def AuxBookImport(bookname:String) = MyAppAuxBooks.AuxBookImport(bookname)
 	def GuiShowAuxBooks = MyAppAuxBooks.GuiShowAuxBooks
