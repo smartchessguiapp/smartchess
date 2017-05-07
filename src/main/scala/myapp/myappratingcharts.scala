@@ -17,15 +17,19 @@ object MyAppRatingCharts
 
 	val WIDTH=800
 	val HEIGHT=450
+	val LEFTMARGIN=40
+	val CHARTWIDTH=WIDTH-LEFTMARGIN
 
 	var lastcat=""
 
 	case class DayData(		
+		var first:Int=1500,
 		var open:Int=1500,
 		var high:Int=0,
 		var low:Int=5000,
 		var close:Int=1500,
-		var empty:Boolean=true
+		var empty:Boolean=true,
+		var hasfirst:Boolean=false
 	)
 	{
 		def getboxlow:Int = if(open < close) open else close
@@ -34,15 +38,22 @@ object MyAppRatingCharts
 
 		def add(rating:Int)
 		{
-			if(empty)
+			if(!hasfirst)
 			{
+				first=rating
 				open=rating
+				hasfirst=true
+			}
+			else
+			{				
+				close=rating				
 				empty=false
 			}
-			close=rating
 			if(rating < low) low=rating
 			if(rating > high) high=rating
 		}
+
+		def toPrintable:String = s"hasfirst $hasfirst empty $empty f $first o $open h $high l $low c $close"
 	}
 
 	case class HistoryData(
@@ -50,6 +61,7 @@ object MyAppRatingCharts
 	)
 	{
 		var count:Int=0
+		var corrected:Boolean=false
 
 		def add(date:String,rating:Int)
 		{
@@ -62,6 +74,13 @@ object MyAppRatingCharts
 		}
 
 		def sortedkeys:List[String]=dates.keys.toList.sortWith((a,b) => SimpleDate(a).isEarlierThan(SimpleDate(b)))
+
+		def toPrintable:String =
+		{
+			(for(date <- sortedkeys) yield
+				s"$date ${dates(date).toPrintable}"
+			).mkString("\n")
+		}
 	}
 
 	case class CategoryData(
@@ -117,7 +136,33 @@ object MyAppRatingCharts
 			(what/100 + dir)*100
 		}
 		val h=categorydata.histories(cat)
+
 		var hks=h.sortedkeys
+		if(!h.corrected)
+		{
+			val lasti=hks.length-1
+			for(i <- 0 to lasti)
+			{		
+				val date1=hks(i)		
+				val d1=h.dates(date1)
+				if(i > 0)
+				{										
+					val date0=hks(i-1)					
+					val d0=h.dates(date0)										
+					if(d1.hasfirst)
+					{
+						d0.add(d1.first)
+					}
+					if(i == lasti)
+					{
+						if(d1.empty) h.dates-=(date1)
+					}
+				}				
+			}			
+			h.corrected=true
+			hks=h.sortedkeys
+		}
+
 		if(dayslimit!="ALL")
 		{
 			try{
@@ -140,7 +185,7 @@ object MyAppRatingCharts
 		val cmax=normalize(max,1)
 		val crange=cmax-cmin
 		val vunits=crange/100
-		val widthr=WIDTH.toDouble/days.toDouble
+		val widthr=CHARTWIDTH.toDouble/days.toDouble
 		val heightr=HEIGHT.toDouble/crange.toDouble
 		var barwidth=widthr.toInt-2
 		if(barwidth<2) barwidth=2
@@ -161,7 +206,7 @@ object MyAppRatingCharts
 		val svgbarscontent=(for(date <- hks) yield
 		{
 			i+=1
-			val bcx=(i.toDouble*widthr).toInt+1
+			val bcx=LEFTMARGIN+(i.toDouble*widthr).toInt+1
 			val d=h.dates(date)
 			var bcy=getcy(d.getboxlow)
 			val bheight=getcy(d.getboxhigh)-bcy+1
