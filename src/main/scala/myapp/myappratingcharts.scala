@@ -15,6 +15,11 @@ object MyAppRatingCharts
 {
 	import MyApp._
 
+	val WIDTH=800
+	val HEIGHT=450
+
+	var lastcat=""
+
 	case class DayData(		
 		var open:Int=1500,
 		var high:Int=0,
@@ -23,6 +28,10 @@ object MyAppRatingCharts
 		var empty:Boolean=true
 	)
 	{
+		def getboxlow:Int = if(open < close) open else close
+		def getboxhigh:Int = if(open > close) open else close
+		def getcolor:String = if(close > open) "#00ff00" else "#ff0000"
+
 		def add(rating:Int)
 		{
 			if(empty)
@@ -101,12 +110,79 @@ object MyAppRatingCharts
 
 	var categorydata:CategoryData=CategoryData()
 
+	def CreateSvg(cat:String,dayslimit:String):String=
+	{
+		def normalize(what:Int,dir:Int):Int=
+		{
+			(what/100 + dir)*100
+		}
+		val h=categorydata.histories(cat)
+		var hks=h.sortedkeys
+		if(dayslimit!="ALL")
+		{
+			try{
+				var nd=dayslimit.toInt
+				if(nd>hks.length) nd=hks.length
+				hks=hks.slice(hks.length-nd,hks.length)
+			}catch{case e:Throwable=>{}}			
+		}
+		val games=h.count
+		val days=hks.length
+		var min=5000
+		var max=0
+		for(date <- hks)
+		{
+			val d=h.dates(date)
+			if(d.high > max) max=d.high
+			if(d.low < min) min=d.low
+		}
+		val cmin=normalize(min,0)
+		val cmax=normalize(max,1)
+		val crange=cmax-cmin
+		val widthr=WIDTH.toDouble/days.toDouble
+		val heightr=HEIGHT.toDouble/crange.toDouble
+		var barwidth=widthr.toInt-2
+		if(barwidth<2) barwidth=2
+		var i= -1
+		def getcy(r:Int):Int = (((r-cmin).toDouble * heightr).toInt)
+		val svgbarscontent=(for(date <- hks) yield
+		{
+			i+=1
+			val bcx=(i.toDouble*widthr).toInt+1
+			val d=h.dates(date)
+			var bcy=getcy(d.getboxlow)
+			val bheight=getcy(d.getboxhigh)-bcy+1
+			val bcolor=d.getcolor
+			val ccx=bcx+barwidth/2
+			var ccy=getcy(d.low)
+			val cheight=getcy(d.high)-ccy+1			
+			bcy=HEIGHT-bcy-bheight
+			ccy=HEIGHT-ccy-cheight
+			s"""
+				|<rect width="1" x="$ccx" y="$ccy" height="$cheight" style="fill:#000000;stroke-width:1;stroke:#000000;"/>
+				|<rect width="$barwidth" x="$bcx" y="$bcy" height="$bheight" style="fill:$bcolor;stroke-width:1;stroke:#000000;"/>				
+			""".stripMargin
+		}).mkString("\n")
+		s"""
+			|$cat, games: $games, days: $days, highest: $max, lowest: $min
+			|<hr>
+			|<svg width="$WIDTH" height="$HEIGHT">
+			|$svgbarscontent
+			|</svg>
+		""".stripMargin
+	}
+
 	def UpdateChart(cat:String)
 	{
 		if(categorydata.histories.contains(cat))
 		{
-			MyActor.queuedExecutor ! ExecutionItem(client="UpdateChart",code=new Runnable{def run{					
-				println(categorydata.histories(cat))
+			lastcat=cat
+			val dayslimit=GS("{components}#{dayscombo}#{selected}","ALL")
+			MyActor.queuedExecutor ! ExecutionItem(client="UpdateChart",code=new Runnable{def run{
+				val svg=CreateSvg(cat,dayslimit)					
+				LoadWebContent("{chartswebview}",s"""					
+					|$svg
+				""".stripMargin)
 			}})					
 		}					
 	}
@@ -115,13 +191,14 @@ object MyAppRatingCharts
 	{
 		categorydata=handledata.categories(handle)
 
+		val sks=categorydata.sortedkeys
 		val cks=categorydata.catkeys
-		val sel=cks(0)
 
 		MyActor.queuedExecutor ! ExecutionItem(client="CreateChartsForHandle",code=new Runnable{def run{					
-			GetMyComboBox("{catscombo}").CreateFromItems(cks,sel)
-			UpdateChart(sel)
-		}})		
+			GetMyComboBox("{catscombo}").CreateFromItems(cks,cks(0))			
+		}})
+
+		UpdateChart(sks(0))		
 	}
 
 	def RatingCharts
@@ -129,7 +206,7 @@ object MyAppRatingCharts
 		val storeselectedmaintab=selectedmaintab
 
 		val blob=s"""
-			|<vbox width="800.0">
+			|<vbox width="${WIDTH+100}.0" height="${HEIGHT+200}.0">
 			|<hbox gap="5" padding="5">
 			|<label text="PGN file"/>
 			|<filechooser id="{ratingchartspgnpath}"/>
@@ -137,7 +214,9 @@ object MyAppRatingCharts
 			|<button id="{ratingchartscreate}" width="200.0" text="Create charts"/>
 			|<hbox gap="5" padding="5">
 			|<combobox id="{catscombo}"/>
-			|</hbox>			
+			|<combobox id="{dayscombo}"/>
+			|</hbox>
+			|<webview id="{chartswebview}" width="${WIDTH+50}.0" height="${HEIGHT+75}.0"/>
 			|</vbox>
 		""".stripMargin
 
@@ -192,8 +271,8 @@ object MyAppRatingCharts
 				if(variant=="Standard")
 				{
 					if(timesecs<=15) category="Ultra Bullet"
-					else if(timesecs<=180) category="Bullet"
-					else if(timesecs<=480) category="Blitz"
+					else if(timesecs<180) category="Bullet"
+					else if(timesecs<480) category="Blitz"
 					else category="Classical"
 				}
 
@@ -205,6 +284,8 @@ object MyAppRatingCharts
 				if((count%500)==0) MyActor.Log("processing PGN %.2f".
 					format(count.toDouble / pgns.length.toDouble * 100.0)+" % complete")
 			}
+
+			println("")
 
 			val sk=handledata.sortedkeys
 
@@ -261,6 +342,11 @@ object MyAppRatingCharts
 
 					UpdateChart(cat)
 				}
+
+				if(id=="{dayscombo}")
+				{
+					UpdateChart(lastcat)
+				}
 			}
 
 			if(ev.kind=="stage closed")
@@ -271,5 +357,8 @@ object MyAppRatingCharts
 
 		MyStage("{ratingchartsdialog}","Rating charts",blob,
 			modal=true,usewidth=false,useheight=false,handler=ratingcharts_handler)
+
+		GetMyComboBox("{catscombo}").CreateFromItems(List[String](),"")
+		GetMyComboBox("{dayscombo}").CreateFromItems(List[String]("ALL","100","50","20"),"ALL")
 	}
 }
