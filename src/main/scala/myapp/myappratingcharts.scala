@@ -139,12 +139,25 @@ object MyAppRatingCharts
 		val cmin=normalize(min,0)
 		val cmax=normalize(max,1)
 		val crange=cmax-cmin
+		val vunits=crange/100
 		val widthr=WIDTH.toDouble/days.toDouble
 		val heightr=HEIGHT.toDouble/crange.toDouble
 		var barwidth=widthr.toInt-2
 		if(barwidth<2) barwidth=2
 		var i= -1
 		def getcy(r:Int):Int = (((r-cmin).toDouble * heightr).toInt)
+		val gridcontent=(for(i <- 1 to vunits-1) yield
+		{
+			val cy=getcy(cmin+i*100)
+			val r=cmin+(vunits-i)*100
+			s"""
+				|<rect width="$WIDTH" x="0" y="$cy" height="1" style="fill:#0000ff;stroke-width:0;stroke:#000000;"/>				
+				|<text x="0" y="${cy-3}" font-size="12" fill="blue">
+				|$r
+				|</text>
+				|
+			""".stripMargin
+		}).mkString("\n")
 		val svgbarscontent=(for(date <- hks) yield
 		{
 			i+=1
@@ -159,14 +172,19 @@ object MyAppRatingCharts
 			bcy=HEIGHT-bcy-bheight
 			ccy=HEIGHT-ccy-cheight
 			s"""
-				|<rect width="1" x="$ccx" y="$ccy" height="$cheight" style="fill:#000000;stroke-width:1;stroke:#000000;"/>
-				|<rect width="$barwidth" x="$bcx" y="$bcy" height="$bheight" style="fill:$bcolor;stroke-width:1;stroke:#000000;"/>				
+				|<rect width="1" x="$ccx" y="$ccy" height="$cheight" style="fill:#000000;stroke-width:1;stroke:#000000;"/>				
+				|<rect id="rect$i" width="$barwidth" x="$bcx" y="$bcy" height="$bheight" style="fill:$bcolor;stroke-width:1;stroke:#000000;"/>				
+				|<text id="thepopup" x="0" y="30" font-size="25" fill="black" visibility="hidden">
+				|$date open ${d.open} high ${d.high} low ${d.low} close ${d.close}
+    			|<set attributeName="visibility" from="hidden" to="visible" begin="rect$i.mouseover" end="rect$i.mouseout"/>
+  				|</text>
 			""".stripMargin
 		}).mkString("\n")
 		s"""
 			|$cat, games: $games, days: $days, highest: $max, lowest: $min
 			|<hr>
-			|<svg width="$WIDTH" height="$HEIGHT">
+			|<svg width="$WIDTH" height="$HEIGHT">						
+			|$gridcontent
 			|$svgbarscontent
 			|</svg>
 		""".stripMargin
