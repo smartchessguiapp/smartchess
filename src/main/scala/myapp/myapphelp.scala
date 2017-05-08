@@ -230,6 +230,32 @@ object Help
 				title="Tools menu",
 				paragraphs=List(
 					Paragraph(
+						title="Rating charts",
+						ditems=List(
+							TextItem(s"""
+								|Compiles rating histories and draws candlestick charts using a bulk PGN
+								|containing a player's games.
+								|The games in the PGN are supposed to be ordered by date, particulary the 
+								|most recent game should come first.
+							""".stripMargin),
+							TextItem(s"""
+								|<b>PGN file</b> lets you select the absolute path of the bulk PGN.
+							""".stripMargin),
+							TextItem(s"""
+								|<b>Create charts</b> lets you create the charts. This operation may take time
+								|if the PGN file is large. You can abort this operation.
+							""".stripMargin),
+							TextItem(s"""
+								|<b>Rating category combo</b> is created based on the rating categories ( which can be
+								|variants or time controls ) and is sorted according to the number of games in each category.
+							""".stripMargin),
+							TextItem(s"""
+								|<b>Number of playing days combo</b> lets you select how many of the latest playing days is
+								|presented in the chart. Setting it to ALL will include all playing days.
+							""".stripMargin)
+						)
+					),
+					Paragraph(
 						title="Show auxiliary books",
 						ditems=List(
 							TextItem(s"""
