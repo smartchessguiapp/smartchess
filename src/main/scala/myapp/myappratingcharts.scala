@@ -29,7 +29,9 @@ object MyAppRatingCharts
 		var low:Int=5000,
 		var close:Int=1500,
 		var empty:Boolean=true,
-		var hasfirst:Boolean=false
+		var hasfirst:Boolean=false,
+		var count:Int=0,
+		var cumul:Double=0.0
 	)
 	{
 		def getboxlow:Int = if(open < close) open else close
@@ -46,7 +48,9 @@ object MyAppRatingCharts
 			}
 			else
 			{				
-				close=rating				
+				close=rating
+				count+=1
+				cumul+=rating.toDouble
 				empty=false
 			}
 			if(rating < low) low=rating
@@ -60,7 +64,7 @@ object MyAppRatingCharts
 		var dates:Map[String,DayData]=Map[String,DayData]()		
 	)
 	{
-		var count:Int=0
+		var count:Int=0		
 		var corrected:Boolean=false
 
 		def add(date:String,rating:Int)
@@ -171,16 +175,21 @@ object MyAppRatingCharts
 				hks=hks.slice(hks.length-nd,hks.length)
 			}catch{case e:Throwable=>{}}			
 		}
-		val games=h.count
 		val days=hks.length
 		var min=5000
 		var max=0
+		var cumul:Double=0.0
+		var count=0
 		for(date <- hks)
 		{
 			val d=h.dates(date)
 			if(d.high > max) max=d.high
-			if(d.low < min) min=d.low
+			if(d.low < min) min=d.low			
+			count+=d.count
+			cumul+=d.cumul
 		}
+		val avg=cumul/count.toDouble
+		val avgf="%.2f".format(avg)
 		val cmin=normalize(min,0)
 		val cmax=normalize(max,1)
 		val crange=cmax-cmin
@@ -226,7 +235,11 @@ object MyAppRatingCharts
 			""".stripMargin
 		}).mkString("\n")
 		s"""
-			|$cat, games: $games, days: $days, highest: $max, lowest: $min
+			|<b>$cat</b> [ <i>games</i>: <b>$count</b> , 
+			|<i>days</i>: <b><font color="blue">$days</font></b> , 
+			|<i>highest</i>: <b><font color="green">$max</font></b> , 
+			|<i>lowest</i>: <b><font color="red">$min</font></b> , 
+			|<i>average</i>: <b><font color="blue">$avgf</font></b> ]
 			|<hr>
 			|<svg width="$WIDTH" height="$HEIGHT">						
 			|$gridcontent
@@ -423,5 +436,6 @@ object MyAppRatingCharts
 
 		GetMyComboBox("{catscombo}").CreateFromItems(List[String](),"")
 		GetMyComboBox("{dayscombo}").CreateFromItems(List[String]("ALL","100","50","20"),"ALL")
+		Set("{components}#{dayscombo}#{selected}","ALL")
 	}
 }
