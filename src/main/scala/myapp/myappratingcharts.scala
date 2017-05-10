@@ -60,14 +60,59 @@ object MyAppRatingCharts
 		def toPrintable:String = s"hasfirst $hasfirst empty $empty f $first o $open h $high l $low c $close"
 	}
 
+	case class OpponentData(
+		var cumul:Double=0.0,
+		var count:Int=0,
+		var wins:Int=0,
+		var draws:Int=0,
+		var losses:Int=0
+	)
+	{		
+		def add(rating:Int,result:String)
+		{
+			cumul+=rating.toDouble
+			count+=1
+			if(result=="1-0")
+			{
+				wins+=1
+			}
+			else if(result=="1/2-1/2")
+			{
+				draws+=1
+			}
+			else
+			{
+				losses+=1
+			}
+		}
+
+		def avgr:Int=
+		{
+			if(count==0) return 1500
+			(cumul/count).toInt
+		}
+
+		def score:Int = (wins-losses)
+
+		def scoref:String=
+		{
+			var half:String=""
+			var ts=score
+			if(ts>0) return "+"+ts
+			""+ts
+		}
+	}
+
 	case class HistoryData(
-		var dates:Map[String,DayData]=Map[String,DayData]()		
+		var dates:Map[String,DayData]=Map[String,DayData](),
+		var opponents:Map[String,OpponentData]=Map[String,OpponentData]()
 	)
 	{
 		var count:Int=0		
 		var corrected:Boolean=false
 
-		def add(date:String,rating:Int)
+		def add(date:String,rating:Int,
+			ohandle:String="",orating:Int=1500,result:String="1/2-1/2")
 		{
 			if(!dates.contains(date))
 			{
@@ -75,9 +120,17 @@ object MyAppRatingCharts
 			}
 			dates(date).add(rating)
 			count+=1
+
+			if(!opponents.contains(ohandle))
+			{
+				opponents+=(ohandle->OpponentData())
+			}
+			opponents(ohandle).add(orating,result)
 		}
 
 		def sortedkeys:List[String]=dates.keys.toList.sortWith((a,b) => SimpleDate(a).isEarlierThan(SimpleDate(b)))
+
+		def sortedokeys:List[String]=opponents.keys.toList.sortWith((a,b) => opponents(a).count > opponents(b).count)		
 
 		def toPrintable:String =
 		{
@@ -93,13 +146,15 @@ object MyAppRatingCharts
 	{	
 		var count:Int=0
 
-		def add(category:String,date:String,rating:Int)
+		def add(category:String,date:String,rating:Int,
+			ohandle:String="",orating:Int=1500,result:String="1/2-1/2")
 		{
 			if(!histories.contains(category))
 			{
 				histories+=(category->HistoryData())
 			}
-			histories(category).add(date,rating)
+			histories(category).add(date,rating,
+				ohandle,orating,result)
 			count+=1
 		}
 
@@ -117,13 +172,15 @@ object MyAppRatingCharts
 			categories=Map[String,CategoryData]()
 		}
 
-		def add(handle:String,category:String,date:String,rating:Int)
+		def add(handle:String,category:String,date:String,rating:Int,
+			ohandle:String="",orating:Int=1500,result:String="1/2-1/2")
 		{
 			if(!categories.contains(handle))
 			{
 				categories+=(handle -> CategoryData())				
 			}
-			categories(handle).add(category,date,rating)
+			categories(handle).add(category,date,rating,
+				ohandle,orating,result)
 		}
 
 		def sortedkeys:List[String]=categories.keys.toList.sortWith((a,b) => categories(a).count > categories(b).count)
@@ -133,7 +190,14 @@ object MyAppRatingCharts
 
 	var categorydata:CategoryData=CategoryData()
 
-	def CreateSvg(cat:String,dayslimit:String):String=
+	case class SvgResult(
+		svg:String,
+		ostats:String=""
+	)
+	{		
+	}
+
+	def CreateSvg(cat:String,dayslimit:String):SvgResult=
 	{
 		def normalize(what:Int,dir:Int):Int=
 		{
@@ -234,7 +298,7 @@ object MyAppRatingCharts
   				|</text>
 			""".stripMargin
 		}).mkString("\n")
-		s"""
+		val svg=s"""
 			|<b>$cat</b> [ <i>games</i>: <b>$count</b> , 
 			|<i>days</i>: <b><font color="blue">$days</font></b> , 
 			|<i>highest</i>: <b><font color="green">$max</font></b> , 
@@ -246,6 +310,39 @@ object MyAppRatingCharts
 			|$svgbarscontent
 			|</svg>
 		""".stripMargin
+		val o=categorydata.histories(cat)
+		val sok=o.sortedokeys
+		val td="""td align="center""""
+		val ostatc=(for(opp <- sok) yield
+		{
+			val od=o.opponents(opp)
+			s"""
+				|<tr>
+				|<$td>$opp</td>
+				|<$td>${od.avgr}</td>
+				|<$td>${od.scoref}</td>
+				|<$td>${od.count}</td>
+				|<$td>${od.wins}</td>
+				|<$td>${od.draws}</td>
+				|<$td>${od.losses}</td>
+				|</tr>
+			""".stripMargin
+		}).mkString("\n")
+		val ostats=s"""
+			|<table border="1" cellpadding="5">
+			|<tr>
+			|<$td>Opponent</td>
+			|<$td>Opponent rating</td>
+			|<$td>Score</td>
+			|<$td>Games</td>
+			|<$td>Wins</td>
+			|<$td>Draws</td>
+			|<$td>Losses</td>
+			|</tr>
+			|$ostatc
+			|</table>
+		""".stripMargin
+		SvgResult(svg,ostats)
 	}
 
 	def UpdateChart(cat:String)
@@ -255,9 +352,12 @@ object MyAppRatingCharts
 			lastcat=cat
 			val dayslimit=GS("{components}#{dayscombo}#{selected}","ALL")
 			MyActor.queuedExecutor ! ExecutionItem(client="UpdateChart",code=new Runnable{def run{
-				val svg=CreateSvg(cat,dayslimit)					
+				val svgresult=CreateSvg(cat,dayslimit)
 				LoadWebContent("{chartswebview}",s"""					
-					|$svg
+					|${svgresult.svg}
+				""".stripMargin)
+				LoadWebContent("{opponentswebview}",s"""					
+					|${svgresult.ostats}
 				""".stripMargin)
 			}})					
 		}					
@@ -282,7 +382,7 @@ object MyAppRatingCharts
 		val storeselectedmaintab=selectedmaintab
 
 		val blob=s"""
-			|<vbox width="${WIDTH+100}.0" height="${HEIGHT+200}.0">
+			|<vbox width="${WIDTH+100}.0" height="${HEIGHT+230}.0">
 			|<hbox gap="5" padding="5">
 			|<label text="PGN file"/>
 			|<filechooser id="{ratingchartspgnpath}"/>
@@ -292,7 +392,14 @@ object MyAppRatingCharts
 			|<combobox id="{catscombo}"/>
 			|<combobox id="{dayscombo}"/>
 			|</hbox>
+			|<tabpane>
+			|<tab caption="Chart">
 			|<webview id="{chartswebview}" width="${WIDTH+50}.0" height="${HEIGHT+75}.0"/>
+			|</tab>
+			|<tab caption="Opponent stats">
+			|<webview id="{opponentswebview}" width="${WIDTH+50}.0" height="${HEIGHT+75}.0"/>
+			|</tab>
+			|</tabpane>
 			|</vbox>
 		""".stripMargin
 
@@ -341,6 +448,10 @@ object MyAppRatingCharts
 					val incsecs=tcparts(1).toInt
 					timesecs=minsecs+incsecs*40
 				}catch{case e:Throwable=>{}}
+				val result=dummy.get_header("Result")
+				val invresult=if(result=="1-0") "0-1"
+					else if(result=="0-1") "1-0" else
+					"1/2-1/2"
 
 				var category=variant
 
@@ -352,8 +463,10 @@ object MyAppRatingCharts
 					else category="Classical"
 				}
 
-				handledata.add(playerwhite,category,date,whiterating)
-				handledata.add(playerblack,category,date,blackrating)
+				handledata.add(playerwhite,category,date,whiterating,
+					playerblack,blackrating,result)
+				handledata.add(playerblack,category,date,blackrating,
+					playerwhite,whiterating,invresult)
 
 				count+=1
 
