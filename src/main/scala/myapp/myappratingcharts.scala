@@ -404,6 +404,8 @@ object MyAppRatingCharts
 			|<combobox id="{dayscombo}"/>
 			|<label text="Advanced"/>
 			|<checkbox id="{ratingchartsadvanced}"/>
+			|<label text="Material current variant only"/>
+			|<checkbox id="{ratingchartscurrentonly}"/>
 			|</hbox>
 			|<tabpane>
 			|<tab caption="Chart">
@@ -441,6 +443,7 @@ object MyAppRatingCharts
 			var count=0			
 
 			val advanced=GB("{components}#{ratingchartsadvanced}")			
+			val currentonly=GB("{components}#{ratingchartscurrentonly}")			
 
 			val oldvariant=board.variant
 
@@ -451,12 +454,18 @@ object MyAppRatingCharts
 				dummy.parse_pgn(pgn,head_only=true)
 
 				val variant=dummy.get_header("Variant")
+				val date=dummy.get_header("Date")
+				val site=dummy.get_header("Site")
 				val playerwhite=dummy.get_header("White")
 				val playerblack=dummy.get_header("Black")								
 
-				if(advanced)
+				var variantok=board.SUPPORTED_VARIANTS.contains(variant)
+				if(currentonly) variantok=(variant==board.variant)
+				val advancedok=(advanced && variantok)
+
+				if(advancedok)
 				{					
-					MyActor.Log(s"parsing ${count+1}. $playerwhite - $playerblack $variant")
+					MyActor.Log(s"parsing ${count+1}. $playerwhite - $playerblack $variant $date $site")
 					board.variant=variant
 					dummy.parse_pgn(pgn,head_only=false)
 				}
@@ -467,7 +476,6 @@ object MyAppRatingCharts
 					whiterating=dummy.get_header("WhiteElo").toInt
 					blackrating=dummy.get_header("BlackElo").toInt
 				}catch{case e:Throwable=>{}}
-				val date=dummy.get_header("Date")								
 				val timecontrol=dummy.get_header("TimeControl")				
 				var timesecs=300
 				try{
@@ -493,16 +501,14 @@ object MyAppRatingCharts
 
 				var captures=Material()
 
-				if(advanced)
+				if(advancedok)
 				{
-					println("game")
 					val b=new board
 					b.set_from_fen(dummy.root.fen)
 					var plies=0
 					while(dummy.forward_node)
 					{
 						val san=dummy.current_node.genSan
-						println(san)
 						b.makeSanMove(san)
 						plies+=1
 					}
@@ -510,9 +516,9 @@ object MyAppRatingCharts
 				}
 
 				handledata.add(playerwhite,category,date,whiterating,
-					playerblack,blackrating,result,captures)
+					playerblack,blackrating,result,captures.rev)
 				handledata.add(playerblack,category,date,blackrating,
-					playerwhite,whiterating,invresult,captures.rev)
+					playerwhite,whiterating,invresult,captures)
 
 				count+=1
 

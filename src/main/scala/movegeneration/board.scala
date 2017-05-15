@@ -1775,7 +1775,7 @@ class board
 	{
 		val rm=toRichMove(m)
 
-		if(rm.pawn_move||rm.king_move)
+		if( rm.pawn_move || ( rm.king_move && (board.variant != "Antichess") ) )
 		{
 			return rm.toSan()
 		}
