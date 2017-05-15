@@ -246,7 +246,7 @@ class game
 
 	def forward_node:Boolean=
 	{
-		if(current_node.childs.keys.toList.length>0)
+		if(current_node.childs.size>0)
 		{
 			val main_san=current_node.sortedSans(0)
 			current_node=current_node.childs(main_san)
@@ -915,7 +915,7 @@ class game
 						{
 							val save_current_node=current_node
 							back
-							val m=b.sanToMove(move)
+							val m=b.sanToMove(move)							
 							if(m!=null)
 							{
 								makeMove(m,addtobook=addtobook,md5=md5,maxdepth=maxdepth,checkreplica=checkreplica)

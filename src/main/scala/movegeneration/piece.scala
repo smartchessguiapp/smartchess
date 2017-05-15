@@ -27,10 +27,22 @@ case class Material(
 		d
 	}
 
+	def +=(m:Material)=
+	{
+		for((p,c) <- m.counts) modify(p,c)
+	}
+
 	def bycolor(col:piece.TColor):Material=
 	{
 		val m=Material()
 		for((p,c) <- counts) if(piece.colorOf(p)==col) m.modify(piece.typeOf(p),c)
+		m
+	}
+
+	def rev:Material=
+	{
+		val m=Material()
+		for((p,c) <- counts) m.modify(piece.fromTypeAndColor(piece.typeOf(p),piece.inverseColorOf(piece.colorOf(p))),c)
 		m
 	}
 
@@ -60,13 +72,15 @@ case class Material(
 		""".stripMargin
 	}
 
+	var headers=List("White","Black")
+
 	def reportHTML:String=
 	{
 		s"""
 			|<table>
 			|<tr>
-			|<$td>White</td>
-			|<$td>Black</td>
+			|<$td>${headers(0)}</td>
+			|<$td>${headers(1)}</td>
 			|<$td>Balance</td>
 			|</tr>
 			|<tr>

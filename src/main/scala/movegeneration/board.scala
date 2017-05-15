@@ -822,6 +822,11 @@ class board
 	{
 		val m=move(fromalgeb=algeb)
 
+		isMoveLegal(m)
+	}
+
+	def isMoveLegal(m:move,test:Boolean=false):Boolean=
+	{
 		if(m.from==NO_SQUARE) return false
 		if(m.to==NO_SQUARE) return false
 
@@ -842,6 +847,7 @@ class board
 			ok=(dummy.currentSq==m.from)
 			if(ok)
 			{
+				val algeb=m.toAlgeb
 				val calgeb=dummy.current_move.toAlgeb
 				if(test) println("calgeb "+calgeb+" algeb "+algeb)
 				if(calgeb==algeb)
@@ -859,6 +865,7 @@ class board
 
 		while(dummy.nextLegalMove(test))
 		{
+			val algeb=m.toAlgeb
 			val calgeb=dummy.current_move.toAlgeb
 			if(test) println("castling calgeb "+calgeb+" algeb "+algeb)
 			if(calgeb==algeb)
@@ -904,7 +911,10 @@ class board
 
 					val m=toRichMove(move(from=cm.to,to=cm.from))
 
-					a+=m
+					if(isMoveLegal(m))
+					{
+						a+=m
+					}					
 
 				}
 			}

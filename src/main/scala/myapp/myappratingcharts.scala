@@ -111,8 +111,10 @@ object MyAppRatingCharts
 		var count:Int=0		
 		var corrected:Boolean=false
 
+		var allcaptures=Material()
+
 		def add(date:String,rating:Int,
-			ohandle:String="",orating:Int=1500,result:String="1/2-1/2")
+			ohandle:String="",orating:Int=1500,result:String="1/2-1/2",captures:Material=Material())
 		{
 			if(!dates.contains(date))
 			{
@@ -126,6 +128,8 @@ object MyAppRatingCharts
 				opponents+=(ohandle->OpponentData())
 			}
 			opponents(ohandle).add(orating,result)
+
+			allcaptures+=captures
 		}
 
 		def sortedkeys:List[String]=dates.keys.toList.sortWith((a,b) => SimpleDate(a).isEarlierThan(SimpleDate(b)))
@@ -147,14 +151,14 @@ object MyAppRatingCharts
 		var count:Int=0
 
 		def add(category:String,date:String,rating:Int,
-			ohandle:String="",orating:Int=1500,result:String="1/2-1/2")
+			ohandle:String="",orating:Int=1500,result:String="1/2-1/2",captures:Material=Material())
 		{
 			if(!histories.contains(category))
 			{
 				histories+=(category->HistoryData())
 			}
 			histories(category).add(date,rating,
-				ohandle,orating,result)
+				ohandle,orating,result,captures)
 			count+=1
 		}
 
@@ -173,14 +177,14 @@ object MyAppRatingCharts
 		}
 
 		def add(handle:String,category:String,date:String,rating:Int,
-			ohandle:String="",orating:Int=1500,result:String="1/2-1/2")
+			ohandle:String="",orating:Int=1500,result:String="1/2-1/2",captures:Material=Material())
 		{
 			if(!categories.contains(handle))
 			{
 				categories+=(handle -> CategoryData())				
 			}
 			categories(handle).add(category,date,rating,
-				ohandle,orating,result)
+				ohandle,orating,result,captures)
 		}
 
 		def sortedkeys:List[String]=categories.keys.toList.sortWith((a,b) => categories(a).count > categories(b).count)
@@ -192,7 +196,8 @@ object MyAppRatingCharts
 
 	case class SvgResult(
 		svg:String,
-		ostats:String=""
+		ostats:String="",
+		mstats:String=""
 	)
 	{		
 	}
@@ -342,7 +347,10 @@ object MyAppRatingCharts
 			|$ostatc
 			|</table>
 		""".stripMargin
-		SvgResult(svg,ostats)
+
+		o.allcaptures.headers=List("Own captures","Opponent captures")
+		val mstats=o.allcaptures.reportHTML
+		SvgResult(svg,ostats,mstats)
 	}
 
 	def UpdateChart(cat:String)
@@ -358,6 +366,9 @@ object MyAppRatingCharts
 				""".stripMargin)
 				LoadWebContent("{opponentswebview}",s"""					
 					|${svgresult.ostats}
+				""".stripMargin)
+				LoadWebContent("{mstatswebview}",s"""					
+					|${svgresult.mstats}
 				""".stripMargin)
 			}})					
 		}					
@@ -391,13 +402,18 @@ object MyAppRatingCharts
 			|<hbox gap="5" padding="5">
 			|<combobox id="{catscombo}"/>
 			|<combobox id="{dayscombo}"/>
+			|<label text="Advanced"/>
+			|<checkbox id="{ratingchartsadvanced}"/>
 			|</hbox>
 			|<tabpane>
 			|<tab caption="Chart">
 			|<webview id="{chartswebview}" width="${WIDTH+50}.0" height="${HEIGHT+75}.0"/>
 			|</tab>
-			|<tab caption="Opponent stats">
+			|<tab caption="Opponent stats ( ALL )">
 			|<webview id="{opponentswebview}" width="${WIDTH+50}.0" height="${HEIGHT+75}.0"/>
+			|</tab>
+			|<tab caption="Material stats ( ALL )">
+			|<webview id="{mstatswebview}" width="${WIDTH+50}.0" height="${HEIGHT+75}.0"/>
 			|</tab>
 			|</tabpane>
 			|</vbox>
@@ -424,22 +440,34 @@ object MyAppRatingCharts
 		
 			var count=0			
 
+			val advanced=GB("{components}#{ratingchartsadvanced}")			
+
+			val oldvariant=board.variant
+
 			for(pgn <- pgns if((!chartsaborted)))
 			{
 				val dummy=new game
-
+				
 				dummy.parse_pgn(pgn,head_only=true)
 
+				val variant=dummy.get_header("Variant")
 				val playerwhite=dummy.get_header("White")
 				val playerblack=dummy.get_header("Black")								
+
+				if(advanced)
+				{					
+					MyActor.Log(s"parsing ${count+1}. $playerwhite - $playerblack $variant")
+					board.variant=variant
+					dummy.parse_pgn(pgn,head_only=false)
+				}
+
 				var whiterating=2000
 				var blackrating=2000
 				try{
 					whiterating=dummy.get_header("WhiteElo").toInt
 					blackrating=dummy.get_header("BlackElo").toInt
 				}catch{case e:Throwable=>{}}
-				val date=dummy.get_header("Date")				
-				val variant=dummy.get_header("Variant")
+				val date=dummy.get_header("Date")								
 				val timecontrol=dummy.get_header("TimeControl")				
 				var timesecs=300
 				try{
@@ -463,10 +491,28 @@ object MyAppRatingCharts
 					else category="Classical"
 				}
 
+				var captures=Material()
+
+				if(advanced)
+				{
+					println("game")
+					val b=new board
+					b.set_from_fen(dummy.root.fen)
+					var plies=0
+					while(dummy.forward_node)
+					{
+						val san=dummy.current_node.genSan
+						println(san)
+						b.makeSanMove(san)
+						plies+=1
+					}
+					captures=b.origmaterial-b.material
+				}
+
 				handledata.add(playerwhite,category,date,whiterating,
-					playerblack,blackrating,result)
+					playerblack,blackrating,result,captures)
 				handledata.add(playerblack,category,date,blackrating,
-					playerwhite,whiterating,invresult)
+					playerwhite,whiterating,invresult,captures.rev)
 
 				count+=1
 
@@ -474,7 +520,7 @@ object MyAppRatingCharts
 					format(count.toDouble / pgns.length.toDouble * 100.0)+" % complete")
 			}
 
-			println("")
+			board.variant=oldvariant
 
 			val sk=handledata.sortedkeys
 
