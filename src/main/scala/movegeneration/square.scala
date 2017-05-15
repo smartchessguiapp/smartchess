@@ -65,6 +65,13 @@ object square
 	def fileRankOk(f:TFile,r:TRank):Boolean=
 		fileOk(f)&&rankOk(r)
 
+	def squareOk(s:TSquare):Boolean=
+	{
+		if(s<0) return false
+		if(s>=BOARD_AREA) return false
+		true
+	}
+
 	def fileToAlgebFile(f:TFile):Char=('a'.toInt+f).toChar
 	def rankToAlgebRank(r:TRank):Char=('8'.toInt-r).toChar
 

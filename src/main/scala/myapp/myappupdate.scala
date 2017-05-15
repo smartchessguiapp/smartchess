@@ -31,6 +31,22 @@ object MyAppUpdate
 		}
 	}
 
+	def UpdateMaterial
+	{
+		Future{
+			val dummy0=new board
+			dummy0.set_from_fen(g.root.fen)
+			val dummy1=new board
+			dummy1.set_from_fen(g.report_fen)
+			dummy1.origmaterial=dummy0.material
+			val materialcontent=dummy1.reportMaterialHTML
+
+			MyActor.queuedExecutor ! ExecutionItem(client="UpdateMaterial",code=new Runnable{def run{				
+				LoadWebContent("{materialwebview}",materialcontent)
+			}})			
+		}
+	}
+
 	def UpdatePgnHtml
 	{
 		Future{
@@ -238,6 +254,8 @@ object MyAppUpdate
 		CheckFenChanged
 
 		CheckTrainingChanged
+
+		UpdateMaterial
 	}
 
 	def Update

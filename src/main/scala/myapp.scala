@@ -206,6 +206,7 @@ object MyApp
 	def UpdateMovesHtml = MyAppUpdate.UpdateMovesHtml
 	def UpdateBookHtml = MyAppUpdate.UpdateBookHtml
 	def UpdatePgnHtml = MyAppUpdate.UpdatePgnHtml
+	def UpdateMaterial = MyAppUpdate.UpdateMaterial
 	// myappimpl
 	def GuiSetVariant(variant:String) = MyAppImpl.GuiSetVariant(variant)
 	def GuiBoardClicked(file:Int) = MyAppImpl.GuiBoardClicked(file)

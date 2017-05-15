@@ -530,6 +530,9 @@ object MyAppCore
 			|<tab caption="Moves">
 			|<webview id="{moveswebview}"/>
 			|</tab>
+			|<tab caption="Material">
+			|<webview id="{materialwebview}"/>
+			|</tab>
 			|<tab caption="Engines">
 			|<vbox>
 			|<hbox>

@@ -1,5 +1,91 @@
 package smartchess
 
+case class Material(
+	var counts:Map[piece.TPiece,Int]=Map[piece.TPiece,Int]()
+)
+{	
+	def modify(p:piece.TPiece,d:Int)
+	{
+		if(!counts.contains(p)) counts+=(p -> 0)
+		counts+=( p -> ( counts(p) + d ) )
+	}
+
+	def inc(p:piece.TPiece) = modify(p,1)
+	def dec(p:piece.TPiece) = modify(p,-1)
+
+	def getbytypeandcolor(t:piece.TPiece,col:piece.TColor):Int=
+	{
+		val p=piece.fromTypeAndColor(t,col)
+		if(!counts.contains(p)) return 0
+		counts(p)
+	}
+
+	def -(m:Material):Material=
+	{
+		val d=cclone
+		for((p,c) <- m.counts) d.modify(p,-c)
+		d
+	}
+
+	def bycolor(col:piece.TColor):Material=
+	{
+		val m=Material()
+		for((p,c) <- counts) if(piece.colorOf(p)==col) m.modify(piece.typeOf(p),c)
+		m
+	}
+
+	val piecetypelist=List(piece.KING,piece.QUEEN,piece.ROOK,piece.BISHOP,piece.KNIGHT,piece.PAWN)
+
+	val td="""td align="center""""
+
+	def reportHTMLbyColor(col:piece.TColor):String=
+	{
+		val piececontent=(for(t <- piecetypelist) yield
+		{
+			s"""
+				|<tr>
+				|<$td>${piece.nameOf(t)}</td>
+				|<$td>${getbytypeandcolor(t,col)}</td>
+				|</tr>
+			""".stripMargin
+		}).mkString("\n")
+		s"""
+			|<table>
+			|<tr>
+			|<$td>Piece</td>
+			|<$td>Count</td>
+			|</tr>
+			|$piececontent
+			|</table>
+		""".stripMargin
+	}
+
+	def reportHTML:String=
+	{
+		s"""
+			|<table>
+			|<tr>
+			|<$td>White</td>
+			|<$td>Black</td>
+			|<$td>Balance</td>
+			|</tr>
+			|<tr>
+			|<$td>${reportHTMLbyColor(piece.WHITE)}</td>
+			|<$td>${reportHTMLbyColor(piece.BLACK)}</td>
+			|<$td>${(bycolor(piece.WHITE)-bycolor(piece.BLACK)).reportHTMLbyColor(piece.BLACK)}</td>
+			|</tr>
+			|</table>
+		""".stripMargin
+	}
+
+	def cclone:Material=
+	{
+		val m=Material()
+		for((p,c) <- counts) m.modify(p,c)
+		m
+	}
+}
+
 object piece
 {
 
@@ -79,6 +165,22 @@ object piece
 	def pieceType(p:TPiece):TPiece=(p & PIECE_TYPE_MASK)
 	def typeOf(p:TPiece):TPiece=pieceType(p)
 
+	val typeToName=Map[TPiece,String](
+		KING->"King",
+		QUEEN->"Queen",
+		ROOK->"Rook",
+		BISHOP->"Bishop",
+		KNIGHT->"Knight",
+		PAWN->"Pawn"
+	)
+
+	def nameOf(p:TPiece):String=
+	{
+		val t=pieceType(p)
+		if(typeToName.contains(t)) return typeToName(t)
+		"None"
+	}
+
 	def toFenChar(p:TPiece):Char=
 	{
 
@@ -125,5 +227,7 @@ object piece
 		toBlack(pt)
 
 	}
+
+	def fromTypeAndColor(t:TPiece,col:TColor):TPiece = t|col
 
 }

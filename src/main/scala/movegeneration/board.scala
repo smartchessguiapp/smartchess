@@ -192,6 +192,9 @@ class board
 
 	var num_checks:Map[TColor,Int]=Map(WHITE->0,BLACK->0)
 
+	var origmaterial:Material=Material()
+	var material:Material=Material()
+
 	//////////////////////////////////////////
 
 	// don't clone these
@@ -227,6 +230,9 @@ class board
 		)
 
 		c.num_checks=Map[TColor,Int](WHITE->num_checks(WHITE),BLACK->num_checks(BLACK))
+
+		c.origmaterial=origmaterial.cclone
+		c.material=material.cclone
 
 		c
 	}
@@ -335,6 +341,9 @@ class board
 			val posfen=fen_parts(0)
 
 			val posfen_parts=posfen.split("/")
+			
+			origmaterial=Material()			
+			material=Material()
 
 			var i=0
 			for(rank<-posfen_parts)
@@ -357,7 +366,10 @@ class board
 						}
 						else if(j< BOARD_SIZE)
 						{
-							rep(i*BOARD_SIZE+j)=fromFenChar(c)
+							val p=fromFenChar(c)
+							rep(i*BOARD_SIZE+j)=p
+							origmaterial.inc(p)
+							material.inc(p)
 							j+=1
 						}
 					}
@@ -633,6 +645,23 @@ class board
 		makeMove(m)
 	}
 
+	def clearsq(sq:TSquare)
+	{
+		if(!squareOk(sq)) return
+		val p=rep(sq)
+		if(p==NO_PIECE) return
+		material.dec(p)
+		rep(sq)=NO_PIECE
+	}
+
+	def put(sq:TSquare,p:TPiece)
+	{
+		if(!squareOk(sq)) return
+		if(p==NO_PIECE) return
+		material.inc(p)
+		rep(sq)=p
+	}
+
 	def makeMove(m:move)
 	{
 
@@ -662,17 +691,18 @@ class board
 		else
 		{
 
-			rep(rm.to)=rep(rm.from)
+			clearsq(rm.to)
+			put(rm.to,rep(rm.from))
 
 			if((rm.capture)&&(IS_ATOMIC))
 			{
-				rep(rm.to)=NO_PIECE
+				clearsq(rm.to)
 
 				for(esq<-kingAdjSqs(rm.to))
 				{
 					if(typeOf(rep(esq))!=PAWN)
 					{
-						rep(esq)=NO_PIECE
+						clearsq(esq)
 					}
 				}
 
@@ -681,10 +711,11 @@ class board
 
 			if((rm.prom_piece!=NO_PIECE)&&(do_promote))
 			{
-				rep(rm.to)=toColor(rm.prom_piece,turn)
+				clearsq(rm.to)
+				put(rm.to,toColor(rm.prom_piece,turn))
 			}
 
-			rep(rm.from)=NO_PIECE
+			clearsq(rm.from)
 
 			if(rm.pawn_double_push)
 			{
@@ -695,7 +726,7 @@ class board
 
 			if(rm.ep_capture)
 			{
-				rep(rm.ep_clear_square)=NO_PIECE
+				clearsq(rm.ep_clear_square)
 			}
 
 			// check if rook move/capture or king move disables castling
@@ -1973,6 +2004,28 @@ class board
 		}
 
 		null
+	}
+
+	val td="""td align="center""""
+
+	def reportMaterialHTML:String=
+	{
+		s"""
+			|<table>
+			|<tr>
+			|<$td>Material</td>
+			|</tr>
+			|<tr>
+			|<$td>${material.reportHTML}</td>
+			|</tr>
+			|<tr>
+			|<$td>Captured</td>
+			|</tr>
+			|<tr>
+			|<$td>${(origmaterial-material).reportHTML}</td>
+			|</tr>
+			|</table>
+		""".stripMargin
 	}
 
 }
