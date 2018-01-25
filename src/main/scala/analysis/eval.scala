@@ -791,8 +791,10 @@ object Eval extends Module
 				}
 			}
 
-			Builder.MyStage("{searchdialog}","Search",
-				modal=true,unclosable=true,usewidth=true,useheight=true,handler=handler,blob=blob)
+			MyActor.queuedExecutor ! ExecutionItem(client="Search.HasEnginesCallback",code=new Runnable{def run{
+				Builder.MyStage("{searchdialog}","Search",
+					modal=true,unclosable=true,usewidth=true,useheight=true,handler=handler,blob=blob)
+			}})
 
 			MyApp.SaveGameState(name="search")
 
