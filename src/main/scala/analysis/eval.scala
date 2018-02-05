@@ -745,6 +745,8 @@ object Eval extends Module
 
 	var minimaxafter=1
 
+	var minimaxafterchunk=1
+
 	var evalcnt=1
 
 	def Search(factor:Int=80)
@@ -769,6 +771,11 @@ object Eval extends Module
 			evalcnt=1
 
 			minimaxafter=GD("{components}#{minimaxafter}",1.0).toInt
+
+			minimaxafterchunk=GD("{components}#{minimaxafterchunk}",1.0).toInt
+
+			// multiply minimaxafter by minimaxafterchunk
+			minimaxafter = minimaxafter * minimaxafterchunk
 
 			val blob=s"""
 						|<vbox>

@@ -327,6 +327,7 @@ object MyAppCore
 					case "{boardsettingsmenu}" => BoardSettingsMenu
 					case "{profilesettingsmenu}" => ProfileSettingsMenu
 					case "{evalsettingsmenu}" => EvalSettingsMenu
+					case "{evalextrasettingsmenu}" => EvalExtraSettingsMenu
 					case "{resetallsettings}" => if(Confirm("Are you sure ?")) reset_all_settings
 					case "{helptopics}" => HelpTopics
 					case "{createwiki}" => CreateWiki
@@ -432,6 +433,7 @@ object MyAppCore
 			|</menu>
 			|<menu text="Settings">
 			|<menuitem id="{evalsettingsmenu}" text="Eval"/>
+			|<menuitem id="{evalextrasettingsmenu}" text="Eval extra"/>
 			|<menuitem id="{booksettingsmenu}" text="Book"/>
 			|<menuitem id="{boardsettingsmenu}" text="Board"/>
 			|<menuitem id="{profilesettingsmenu}" text="Profile"/>

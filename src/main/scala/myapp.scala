@@ -111,6 +111,7 @@ object MyApp
 	def PgnClicked = MyAppWebview.PgnClicked
 	// myappsettings
 	def EvalSettingsMenu = MyAppSettings.EvalSettingsMenu
+	def EvalExtraSettingsMenu = MyAppSettings.EvalExtraSettingsMenu
 	def ProfileSettingsMenu = MyAppSettings.ProfileSettingsMenu
 	def BoardSettingsMenu = MyAppSettings.BoardSettingsMenu
 	def ApplyBoardSettings = MyAppSettings.ApplyBoardSettings

@@ -177,6 +177,23 @@ object MyAppSettings
 			modal=true,usewidth=false,useheight=false,handler=handler)
 	}
 
+	def EvalExtraSettingsMenu
+	{
+		val sheight="35.0"
+		val swidth="800.0"
+		val blob=s"""
+			|<vbox>
+			|<gridpane hgap="10" vgap="10">					
+			|<label text="Minimax after chunk" r="1" c="1"/>
+			|<slider roundto="1" id="{minimaxafterchunk}" r="1" c="2" value="1.0" width="$swidth" height="$sheight" min="0.0" max="400.0" majortickunit="50.0" minortickcount="4" showticklabels="true" showtickmarks="true"/>
+			|</gridpane>
+			|</vbox>
+		""".stripMargin
+
+		MyStage("{evalextrasettingsdialog}","Eval extra settings",blob,
+			modal=true,usewidth=false,useheight=false,handler=handler)
+	}
+
 		def SetupBoard
 	{
 		def CloseSetupBoardStage
