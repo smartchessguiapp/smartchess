@@ -599,11 +599,23 @@ object Eval extends Module
 
 		val depthbonus=Builder.GD("{components}#{searchdepthbonus}",5.0).toInt
 
+		val weightbyevals=Builder.GB("{components}#{weightbyevals}",false)
+
+		val bias=Builder.GD("{components}#{weightbyevalsbias}",150.0)
+
+		val divisor=Builder.GD("{components}#{weightbyevalsdivisor}",50.0)
+
 		var realfactor=factor+depth*depthbonus
 
 		if(realfactor>100) realfactor=100
 
-		val selsan=DataUtils.SelectByFactor(realfactor,filteredsans)
+		val basesan=filteredsans(0)
+
+		val basescore:Double = bpos.entries(basesan).GetScore.toDouble
+
+		val scoredeltas:List[Double] = filteredsans.map(san => bpos.entries(san).GetScore.toDouble - basescore)
+
+		val selsan=DataUtils.SelectByFactor(realfactor,filteredsans,bias=bias,divisor=divisor,scoredeltas=scoredeltas)
 
 		MyApp.g.makeSanMove(selsan)
 

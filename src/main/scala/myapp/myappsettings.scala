@@ -186,6 +186,12 @@ object MyAppSettings
 			|<gridpane hgap="10" vgap="10">					
 			|<label text="Minimax after chunk" r="1" c="1"/>
 			|<slider roundto="1" id="{minimaxafterchunk}" r="1" c="2" value="1.0" width="$swidth" height="$sheight" min="0.0" max="400.0" majortickunit="50.0" minortickcount="4" showticklabels="true" showtickmarks="true"/>
+			|<label text="Weight by evals" r="2" c="1"/>
+			|<checkbox id="{weightbyevals}" r="2" c="2"/>
+			|<label text="Weight by evals bias" r="3" c="1"/>
+			|<slider id="{weightbyevalsbias}" r="3" c="2" value="150.0" width="$swidth" height="$sheight" min="0.0" max="1000.0" majortickunit="50.0" minortickcount="4" showticklabels="true" showtickmarks="true"/>
+			|<label text="Weight by evals divisor" r="4" c="1"/>
+			|<slider id="{weightbyevalsdivisor}" r="4" c="2" value="50.0" width="$swidth" height="$sheight" min="0.0" max="500.0" majortickunit="50.0" minortickcount="4" showticklabels="true" showtickmarks="true"/>
 			|</gridpane>
 			|</vbox>
 		""".stripMargin

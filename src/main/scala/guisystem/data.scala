@@ -220,20 +220,38 @@ object DataUtils
 		java.nio.file.Files.delete(java.nio.file.Paths.get(path))
 	}
 
-	def SelectByFactor(factor:Int,items:List[String],addanyway:List[String]=List[String]()):String =
+	def sigmoid(x:Double):Double = 1.0 / ( 1.0 + scala.math.exp( -x ) )
+
+	def sigmoidM(x:Double, bias:Double, divisor:Double) = sigmoid( ( x + bias ) / divisor ) / sigmoid( bias / divisor )
+
+	def SelectByFactor(
+		factor:Int,
+		items:List[String],
+		addanyway:List[String]=List[String](),		
+		bias:Double=0.0,
+		divisor:Double=1.0,
+		scoredeltas:List[Double]=null
+	):String =
 	{
 		val r=(new scala.util.Random)
 
-		var alloc=1000.0
+		var alloc:Double=1000.0
 
 		val sanbuff=scala.collection.mutable.ArrayBuffer[String]()
 
 		for(item <- addanyway) sanbuff+=item		
 
+		var index=0
+
 		for(item <- items)
 		{			
-			for(i <- 1 to alloc.toInt) sanbuff+=item
-			alloc=alloc*(1000-10*factor).toDouble/1000.0			
+			val scoredelta:Double = if(scoredeltas==null) 0.0 else scoredeltas(index)
+			val modfactor = DataUtils.sigmoidM(scoredelta,bias,divisor)
+			val modalloc = alloc * modfactor
+			//println("scoredelta %5.0f modfactor %1.6f alloc %10.5f modalloc %10.5f".format(scoredelta,modfactor,alloc,modalloc))
+			for(i <- 1 to modalloc.toInt) sanbuff+=item
+			alloc = alloc * ( 1000 - 10 * factor ).toDouble / 1000.0			
+			index+=1
 		}
 
 		val sel=r.nextInt(sanbuff.length)
