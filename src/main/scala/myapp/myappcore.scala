@@ -312,6 +312,7 @@ object MyAppCore
 					case "{ratingcharts}" => RatingCharts
 					case "{showauxbooks}" => ShowAuxiliaryBooks
 					case "{addpgngamestobook}" => AddPgnGamesToBook
+					case "{gen960}" => board.GenAll960
 					case "{delbook}" => if(Confirm("Do you really want to delete < "+GetCurentBook+" > book ?")) GuiDelBook
 					case "{browseallgames}" => BrowseAllGames
 					case "{addallgamestopgnlist}" => AddAllGamesToPgnList
@@ -429,6 +430,7 @@ object MyAppCore
 			|<menuitem id="{setupboard}" text="Setup board manually"/>
 			|<menuitem id="{browseallgames}" text="Browse all games"/>			
 			|<menuitem id="{addallgamestopgnlist}" text="Add all games to PGN list"/>			
+			|<menuitem id="{gen960}" text="Generate all 960 positions"/>			
 			|<menuitem id="{delbook}" text="Delete current book"/>			
 			|</menu>
 			|<menu text="Settings">

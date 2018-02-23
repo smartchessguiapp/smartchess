@@ -52,12 +52,23 @@ object board
 	var ANTICHESS_START_FEN="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1"
 	var HORDE_START_FEN="rnbqkbnr/pppppppp/8/1PP2PP1/PPPPPPPP/PPPPPPPP/PPPPPPPP/PPPPPPPP w kq - 0 1"
 
-	def gen_chess_960_fen=
-	{
+	def GenAll960{
+		val content=(for(i:Int <- 0 to 959) yield gen_chess_960_fen_by_index(i)).mkString("\n")
+		DataUtils.WriteStringToFile("chess960allfens.txt",content)
+	}
+
+	def gen_chess_960_fen={
 
 		val r=new Random()
 
 		val N=r.nextInt(960)
+
+		gen_chess_960_fen_by_index(N)
+
+	}
+
+	def gen_chess_960_fen_by_index(N:Int)=
+	{
 
 		var a:Array[Char]=(for(i<-0 to 7) yield ' ').toArray
 
