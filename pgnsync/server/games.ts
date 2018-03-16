@@ -37,7 +37,45 @@ function fetchGames(){
 
     lgs.fetch(function(){
         if(lgs.nbResults>0){
-            console.log(`fetched current page, results: ${lgs.nbResults}`)        
+            let nbResults=lgs.nbResults
+            console.log(`fetched current page, results: ${nbResults}`)        
+            let numGames=games.length            
+            let bestNetAdd=0
+            let bestPage=1
+            if(numGames>=nbResults){
+                console.log(`games up to date`)
+                return
+            }
+            let bestNb=10
+            for(let tryNb=10;tryNb<=100;tryNb++){
+                let tryPage=1
+                let fromIndex
+                while( ( fromIndex = nbResults - tryPage * tryNb ) > numGames ) tryPage++
+                let netAdd=fromIndex+tryNb-numGames
+                if(netAdd>bestNetAdd){
+                    bestNetAdd=netAdd
+                    bestNb=tryNb
+                    bestPage=tryPage
+                }
+            }
+            console.log(`fetching nb ${bestNb} page ${bestPage} net add ${bestNetAdd}`)
+            lgs=new LichessGames(LICHESS_HANDLE,bestNb,bestPage)
+            lgs.with_moves=1
+            lgs.fetch(function(){
+                let newgames=lgs.currentPageResults
+                console.log(`loaded ${newgames.length} games`)
+                let allids=games.map(game=>game.id)
+                let totalpushed=0
+                for(let newgame of newgames){
+                    if(allids.indexOf(newgame.id)<0){
+                        totalpushed++
+                        console.log(`pushing id ${newgame.id} total ${totalpushed}`)
+                        games.push(newgame)
+                    }
+                }
+                console.log(`games updated , total games ${games.length}`)
+                saveHandleJson()
+            })            
         }else{
             console.log(`no games were returned from fetch`)
         }

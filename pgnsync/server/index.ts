@@ -13,6 +13,6 @@ if(!fileExists("games")){
 
 setHandle("versenyzo")
 
-schedule.scheduleJob(`0,10,20,30,40,50 * * * * *`, function(){
+schedule.scheduleJob(`0 * * * * *`, function(){
     fetchGames()
 })
