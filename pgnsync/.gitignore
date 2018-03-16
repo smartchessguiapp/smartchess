@@ -1,0 +1,4 @@
+*.exe
+
+/node_modules/
+npm-debug.log

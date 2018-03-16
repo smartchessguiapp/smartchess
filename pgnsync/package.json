@@ -1,0 +1,29 @@
+{
+  "name": "pgnsync",
+  "version": "1.0.0",
+  "description": "synchronize lichess pgn",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/smartchessguiapp/smartchess.git"
+  },
+  "keywords": [
+    "synchronize",
+    "lichess",
+    "pgn"
+  ],
+  "author": "Smartchess Guiapp",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/smartchessguiapp/smartchess/issues"
+  },
+  "homepage": "https://github.com/smartchessguiapp/smartchess#readme",
+  "dependencies": {
+    "@types/node": "^9.4.6",
+    "node-fetch": "^2.1.1",
+    "node-schedule": "^1.3.0"
+  }
+}
