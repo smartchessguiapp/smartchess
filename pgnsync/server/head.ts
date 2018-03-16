@@ -1,8 +1,11 @@
 "use strict";
 
 // system
+const fs = require("fs")
 const fetch_ = require('node-fetch')
 const schedule = require('node-schedule')
+
+let LICHESS_HANDLE:string=""
 
 const DEFAULT_VARIANT = "atomic"
 

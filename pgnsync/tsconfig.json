@@ -54,6 +54,8 @@
   },  
   "files": [    
     "server/head.ts",
+    "server/utils.ts",
+    "server/games.ts",
     "server/lichess.ts",    
     "server/index.ts"
   ]

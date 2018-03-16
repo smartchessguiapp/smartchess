@@ -1,7 +1,9 @@
 "use strict";
 // system
+const fs = require("fs");
 const fetch_ = require('node-fetch');
 const schedule = require('node-schedule');
+let LICHESS_HANDLE = "";
 const DEFAULT_VARIANT = "atomic";
 const ALL_VARIANTS = [
     "bullet",
@@ -39,6 +41,82 @@ function logErr(err) {
     let lines = errContent.split(/[\n\r]+/);
     console.log(lines.join(" \\ "));
     console.log("***");
+}
+function createDir(path) {
+    try {
+        fs.mkdirSync(path);
+        return true;
+    }
+    catch (err) {
+        logErr(err);
+        return false;
+    }
+}
+function fileExists(path) {
+    try {
+        fs.accessSync(path);
+        return true;
+    }
+    catch (err) {
+        logErr(err);
+        return false;
+    }
+}
+function readTextFile(path) {
+    try {
+        let content = fs.readFileSync(path);
+        return content;
+    }
+    catch (err) {
+        logErr(err);
+        return "";
+    }
+}
+function writeTextFile(path, content) {
+    console.log(`writing text file <${path}> content ${content.length}`);
+    try {
+        fs.writeFileSync(path, content);
+        return true;
+    }
+    catch (err) {
+        logErr(err);
+        return false;
+    }
+}
+let games = [];
+function handlePathJson(handle = LICHESS_HANDLE) {
+    return `games/${handle}.json`;
+}
+function saveHandleJson(handle = LICHESS_HANDLE) {
+    let jsonText = JSON.stringify(games);
+    writeTextFile(handlePathJson(), jsonText);
+}
+function setHandle(handle) {
+    LICHESS_HANDLE = handle;
+    games = [];
+    let jsonText = readTextFile(handlePathJson());
+    try {
+        games = JSON.parse(jsonText);
+    }
+    catch (err) {
+        logErr(err);
+    }
+    console.log(`setting handle to ${handle}, games stored ${games.length}`);
+    saveHandleJson();
+}
+function fetchGames() {
+    console.log(`fetching games for ${LICHESS_HANDLE}`);
+    if (LICHESS_HANDLE == "")
+        return;
+    let lgs = new LichessGames(LICHESS_HANDLE, 10, 1);
+    lgs.fetch(function () {
+        if (lgs.nbResults > 0) {
+            console.log(`fetched current page, results: ${lgs.nbResults}`);
+        }
+        else {
+            console.log(`no games were returned from fetch`);
+        }
+    });
 }
 class Perf {
     constructor() {
@@ -436,3 +514,19 @@ class LichessGames {
     }
 }
 // server startup
+if (!fileExists("games")) {
+    if (!createDir("games")) {
+        logErr("fatal: could not create games directory");
+        process.exit(1);
+    }
+    else {
+        console.log("games directory created ok");
+    }
+}
+else {
+    console.log("games directory exists");
+}
+setHandle("versenyzo");
+schedule.scheduleJob(`0,10,20,30,40,50 * * * * *`, function () {
+    fetchGames();
+});
