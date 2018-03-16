@@ -1,4 +1,6 @@
 *.exe
 
+/games
+
 /node_modules/
 npm-debug.log
