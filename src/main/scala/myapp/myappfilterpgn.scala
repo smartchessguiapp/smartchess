@@ -22,6 +22,11 @@ object MyAppFilterPgn
 		GetMyText("{filterplayerblack}").SetText(filterplayerblack)
 	}
 
+	def HandleColor(color:String){
+		if(color=="white") SetSearchProfile(PgnSync.bookName("white"),GetMyHandle,"")
+		else SetSearchProfile(PgnSync.bookName("black"),"",GetMyHandle)
+	}
+
 	def FilterPGN
 	{
 		val blob=s"""
@@ -105,12 +110,12 @@ object MyAppFilterPgn
 
 				if(id=="{handlewhite}")
 				{
-					SetSearchProfile("white",GetMyHandle,"")
+					HandleColor("white")
 				}
 
 				if(id=="{handleblack}")
 				{
-					SetSearchProfile("black","",GetMyHandle)
+					HandleColor("black")
 				}
 			}
 

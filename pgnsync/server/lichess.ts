@@ -179,7 +179,9 @@ class LichessGame{
 
     reportPgn():string{
         let pgn=`[White "${this.players.white.userIdLower()}"]
+[WhiteElo "${this.players.white.rating}"]
 [Black "${this.players.black.userIdLower()}"]
+[BlackElo "${this.players.black.rating}"]
 [Result "${this.resultF()}"]
 [Variant "${this.displayVariant()}"]
 [Date "${new Date(this.createdAt).toLocaleDateString()}"]
