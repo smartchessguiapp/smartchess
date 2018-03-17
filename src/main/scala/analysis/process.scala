@@ -133,7 +133,7 @@ case class Proc(
 		processin=null
 		processout=null
 
-		MyActor.Log(s"process $path unloaded")
+		MyActor.Log(s"process $path destroyed")
 
 	}
 }

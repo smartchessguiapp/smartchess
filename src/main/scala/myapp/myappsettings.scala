@@ -106,6 +106,8 @@ object MyAppSettings
 					Set("{settings}#{myhandle}",myhandle)
 
 					CloseStage("{profilesettingsdialog}")
+
+					PgnSync.startPgnSync
 				}
 			}
 		}

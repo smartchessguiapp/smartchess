@@ -87,9 +87,16 @@ let games = [];
 function handlePathJson(handle = LICHESS_HANDLE) {
     return `games/${handle}.json`;
 }
+function handlePathPgn(handle = LICHESS_HANDLE) {
+    return `games/${handle}.pgn`;
+}
 function saveHandleJson(handle = LICHESS_HANDLE) {
     let jsonText = JSON.stringify(games);
     writeTextFile(handlePathJson(), jsonText);
+}
+function saveHandlePgn(handle = LICHESS_HANDLE) {
+    let pgn = games.map((game) => new LichessGame().fromJson(game).reportPgn()).join("\n\n");
+    writeTextFile(handlePathPgn(), pgn);
 }
 function setHandle(handle) {
     LICHESS_HANDLE = handle;
@@ -103,6 +110,7 @@ function setHandle(handle) {
     }
     console.log(`setting handle to ${handle}, games stored ${games.length}`);
     saveHandleJson();
+    saveHandlePgn();
 }
 function fetchGames() {
     console.log(`fetching games for ${LICHESS_HANDLE}`);
@@ -150,6 +158,7 @@ function fetchGames() {
                 }
                 console.log(`games updated , total games ${games.length}`);
                 saveHandleJson();
+                saveHandlePgn();
             });
         }
         else {
@@ -269,6 +278,10 @@ class LichessClock {
             this.totalTime = json.totalTime;
         return this;
     }
+    reportPgnField() {
+        let pgnField = `${this.initial}/${this.increment}`;
+        return pgnField;
+    }
 }
 class LichessPlayer {
     constructor() {
@@ -324,6 +337,19 @@ class LichessGame {
         this.players = new LichessPlayers();
         this.winner = "";
         this.url = "";
+        this.moves = "";
+    }
+    reportPgn() {
+        let pgn = `[White "${this.players.white.userIdLower()}"]
+[Black "${this.players.black.userIdLower()}"]
+[Result "${this.resultF()}"]
+[Date "${new Date(this.createdAt).toLocaleDateString()}"]
+[Time "${new Date(this.createdAt).toLocaleTimeString()}"]
+[TimeControl "${this.clock.reportPgnField()}"]
+[Site "${this.url}"]
+
+${this.moves}`;
+        return pgn;
     }
     isUserWhite(userId) {
         return this.players.white.userIdLower() == userId.toLowerCase();
@@ -401,6 +427,8 @@ class LichessGame {
             this.winner = json.winner;
         if (json.url != undefined)
             this.url = json.url;
+        if (json.moves != undefined)
+            this.moves = json.moves;
         return this;
     }
     shortUrl() {

@@ -113,6 +113,11 @@ class LichessClock{
 
         return this
     }
+
+    reportPgnField():string{
+        let pgnField=`${this.initial}/${this.increment}`
+        return pgnField
+    }
 }
 
 class LichessPlayer{
@@ -166,6 +171,20 @@ class LichessGame{
     players:LichessPlayers=new LichessPlayers()
     winner:string=""
     url:string=""
+    moves:string=""
+
+    reportPgn():string{
+        let pgn=`[White "${this.players.white.userIdLower()}"]
+[Black "${this.players.black.userIdLower()}"]
+[Result "${this.resultF()}"]
+[Date "${new Date(this.createdAt).toLocaleDateString()}"]
+[Time "${new Date(this.createdAt).toLocaleTimeString()}"]
+[TimeControl "${this.clock.reportPgnField()}"]
+[Site "${this.url}"]
+
+${this.moves}`
+        return pgn
+    }
 
     isUserWhite(userId:string):boolean{
         return this.players.white.userIdLower()==userId.toLowerCase()
@@ -226,6 +245,7 @@ class LichessGame{
         this.winner=""
         if(json.winner!=undefined) this.winner=json.winner
         if(json.url!=undefined) this.url=json.url
+        if(json.moves!=undefined) this.moves=json.moves
 
         return this
     }

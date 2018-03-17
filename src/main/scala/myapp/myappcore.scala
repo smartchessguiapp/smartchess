@@ -585,13 +585,7 @@ object MyAppCore
 
 		Update
 
-		pgnsyncProc=Proc(
-			dir="pgnsync",
-			progandargs=List("node.exe","index.js",GetMyHandle),
-			ProcessOut=PgnSync.handlePgnSyncOut
-		)
-
-		pgnsyncProc.Start
+		PgnSync.startPgnSync
 	}
 
 	def Stop
