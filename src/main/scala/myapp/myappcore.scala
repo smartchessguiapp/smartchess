@@ -584,6 +584,14 @@ object MyAppCore
 		Star
 
 		Update
+
+		pgnsyncProc=Proc(
+			dir="pgnsync",
+			progandargs=List("node.exe","index.js",GetMyHandle),
+			ProcessOut=PgnSync.handlePgnSyncOut
+		)
+
+		pgnsyncProc.Start
 	}
 
 	def Stop
@@ -595,5 +603,7 @@ object MyAppCore
 		SaveGameState()
 
 		EngineManager.enginelist ! ShutDownAllMsg(restartactorsystem=false)
+
+		pgnsyncProc.Destroy
 	}
 }

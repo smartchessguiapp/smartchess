@@ -35,6 +35,8 @@ object MyApp
 
 	var star:GameNode=null	
 
+	var pgnsyncProc:Proc=null
+
 	////////////////////////////////////////////////////////////////////
 	// access shorthands
 

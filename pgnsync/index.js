@@ -565,7 +565,7 @@ if (!fileExists("games")) {
 else {
     console.log("games directory exists");
 }
-setHandle("versenyzo");
+setHandle(process.argv[2]);
 schedule.scheduleJob(`0 * * * * *`, function () {
     fetchGames();
 });
