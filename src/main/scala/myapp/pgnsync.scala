@@ -3,21 +3,29 @@ package smartchess
 ////////////////////////////////////////////////////////////////////
 
 object PgnSync{
+    import MyApp._
+
     def startPgnSync{
-        if(MyApp.pgnsyncProc!=null){
-            MyApp.pgnsyncProc.Destroy
+        if(pgnsyncProc!=null){
+            pgnsyncProc.Destroy
         }
 
-        MyApp.pgnsyncProc=Proc(
+        pgnsyncProc=Proc(
 			dir="pgnsync",
-			progandargs=List("node.exe","index.js",MyApp.GetMyHandle),
+			progandargs=List("node.exe","index.js",GetMyHandle),
 			ProcessOut=PgnSync.handlePgnSyncOut
 		)
 
-		MyApp.pgnsyncProc.Start
+		pgnsyncProc.Start
     }
 
     def handlePgnSyncOut(buffer:String){
         MyActor.Log(buffer)
+    }
+
+    def bookName(color:String):String=GetMyHandle+"_"+color
+
+    def SyncLichessBook{
+        for(color <- List("black","white")) SetCurrentBook(bookName(color))
     }
 }

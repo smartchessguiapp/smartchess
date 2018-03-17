@@ -309,6 +309,7 @@ object MyAppCore
 					case "{savepgnas}" => SavePgnAs
 					case "{newpgnlist}" => NewPgnList
 					case "{savepgnlistas}" => SavePgnListAs
+					case "{synclichessbook}" => PgnSync.SyncLichessBook
 					case "{ratingcharts}" => RatingCharts
 					case "{showauxbooks}" => ShowAuxiliaryBooks
 					case "{addpgngamestobook}" => AddPgnGamesToBook
@@ -422,6 +423,7 @@ object MyAppCore
 			|<menuitem id="{pastepgnmenu}" text="Paste PGN from clipboard"/>
 			|</menu>
 			|<menu text="Tools">
+			|<menuitem id="{synclichessbook}" text="Sync lichess book"/>
 			|<menuitem id="{ratingcharts}" text="Rating charts"/>
 			|<menuitem id="{showauxbooks}" text="Show auxiliary books"/>
 			|<menuitem id="{closeauxbooks}" text="Close auxiliary books"/>

@@ -173,10 +173,15 @@ class LichessGame{
     url:string=""
     moves:string=""
 
+    displayVariant():string{
+        return VARIANT_DISPLAY_NAMES[this.variant]
+    }
+
     reportPgn():string{
         let pgn=`[White "${this.players.white.userIdLower()}"]
 [Black "${this.players.black.userIdLower()}"]
 [Result "${this.resultF()}"]
+[Variant "${this.displayVariant()}"]
 [Date "${new Date(this.createdAt).toLocaleDateString()}"]
 [Time "${new Date(this.createdAt).toLocaleTimeString()}"]
 [TimeControl "${this.clock.reportPgnField()}"]

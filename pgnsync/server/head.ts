@@ -26,6 +26,7 @@ const ALL_VARIANTS=[
 ]
 
 const VARIANT_DISPLAY_NAMES:{[id:string]:string}={
+    standard:"Standard",
     bullet:"Bullet",
     blitz:"Blitz",
     rapid:"Rapid",

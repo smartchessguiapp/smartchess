@@ -21,6 +21,7 @@ const ALL_VARIANTS = [
     "racingKings"
 ];
 const VARIANT_DISPLAY_NAMES = {
+    standard: "Standard",
     bullet: "Bullet",
     blitz: "Blitz",
     rapid: "Rapid",
@@ -339,10 +340,14 @@ class LichessGame {
         this.url = "";
         this.moves = "";
     }
+    displayVariant() {
+        return VARIANT_DISPLAY_NAMES[this.variant];
+    }
     reportPgn() {
         let pgn = `[White "${this.players.white.userIdLower()}"]
 [Black "${this.players.black.userIdLower()}"]
 [Result "${this.resultF()}"]
+[Variant "${this.displayVariant()}"]
 [Date "${new Date(this.createdAt).toLocaleDateString()}"]
 [Time "${new Date(this.createdAt).toLocaleTimeString()}"]
 [TimeControl "${this.clock.reportPgnField()}"]
