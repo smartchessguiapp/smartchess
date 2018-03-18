@@ -681,6 +681,8 @@ case class Book(
 {
 	var positions=Map[String,BookPosition]()
 
+	var gameMd5s=scala.collection.mutable.ArrayBuffer[String]()
+
 	def reset
 	{
 		positions=Map[String,BookPosition]()
@@ -706,6 +708,9 @@ case class Book(
 			<positionlist>
 				{position_list}
 			</positionlist>
+			<gamemd5sstr>
+				{gameMd5s.mkString(" ")}
+			</gamemd5sstr>
 			</book>
 		}
 	}
@@ -726,6 +731,16 @@ case class Book(
 
 			positions+=(tfen->position)
 		}
+
+		val gamemd5sstr=( xml \ "gamemd5sstr" ).text
+
+		gameMd5s=gamemd5sstr.split(" ").to[scala.collection.mutable.ArrayBuffer]
+	}
+
+	def hasGameMd5(gameMd5:String):Boolean=(gameMd5s.indexOf(gameMd5)>=0)
+
+	def addGameMd5(gameMd5:String){
+		if(!hasGameMd5(gameMd5)) gameMd5s+=gameMd5
 	}
 
 	def path = "stuff/"+board.variant+"/books/"+name+".xml"

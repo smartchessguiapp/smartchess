@@ -187,21 +187,33 @@ class GameBrowser() extends MyComponent
 		{
 			if(aborted) return
 
-			total+=1
+			val isReplica=book.hasGameMd5(md5)
 
-			val path=game_path(md5)
+			if(isReplica&&checkreplica){
 
-			if((new java.io.File(path)).exists())
-			{
-				val dummy=new game
+				MyActor.Log(s"replica "+md5)
 
-				val pgn=DataUtils.ReadFileToString(path)
+			}else{
 
-				dummy.parse_pgn(pgn,addtobook=book,maxdepth=maxdepth,checkreplica=checkreplica)
+				total+=1
 
-				val infoline=dummy.get_info_line
+				val path=game_path(md5)
 
-				MyActor.Log(s"$total. added "+infoline)
+				if((new java.io.File(path)).exists())
+				{
+					val dummy=new game
+
+					val pgn=DataUtils.ReadFileToString(path)
+
+					dummy.parse_pgn(pgn,addtobook=book,maxdepth=maxdepth,checkreplica=checkreplica)
+
+					val infoline=dummy.get_info_line
+
+					book.addGameMd5(md5)
+
+					MyActor.Log(s"$total. added "+infoline)
+				}
+
 			}
 		}
 	}
