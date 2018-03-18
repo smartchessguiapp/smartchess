@@ -25,6 +25,14 @@ object PgnSync{
 
     def handlePgnSyncOut(buffer:String){
         //MyActor.Log(buffer)
+        println(buffer)
+        val parts=buffer.split(" ").toList
+        if(parts.length>1){
+            if(parts(0)=="status:"){
+                syncstatus=parts.tail.mkString(" ")
+                UpdateTitle
+            }
+        }
     }
 
     def bookName(color:String):String=GetMyHandle+"_"+color

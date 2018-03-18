@@ -157,7 +157,7 @@ object MyAppUpdate
 			val termination=g.get_header("Termination")
 			val plycount=g.get_header("PlyCount")
 
-			val title=s"""smartchess ${board.variant} | $playerwhite $playerwhiterating - $playerblack $playerblackrating | $timecontrol $termination $plycount | $result"""
+			val title=s"""smartchess ${board.variant} | $playerwhite $playerwhiterating - $playerblack $playerblackrating | $timecontrol $termination $plycount | $result ( $syncstatus )"""
 
 			MyActor.queuedExecutor ! ExecutionItem(client="UpdateTitle",code=new Runnable{def run{
 				GetStage("{mainstage}").SetTitle(title)

@@ -1,5 +1,7 @@
 let games:any[]=[]
 
+let lastNbResults:number|null=null
+
 function handlePathJson(handle:string=LICHESS_HANDLE):string{
     return `games/${handle}.json`
 }
@@ -9,12 +11,20 @@ function handlePathPgn(handle:string=LICHESS_HANDLE):string{
 }
 
 function saveHandleJson(handle:string=LICHESS_HANDLE){
-    let jsonText=JSON.stringify(games)
+    if(handle==""){
+        console.log(`status: sync no handle specified`)
+    }else{
+        let jsonText=JSON.stringify(games)
 
-    writeTextFile(handlePathJson(),jsonText)
+        writeTextFile(handlePathJson(),jsonText)
+
+        console.log(`status: sync ${handle} games synced ${games.length}${lastNbResults==null?` querying...`:`total ${lastNbResults}`}`)
+    }    
 }
 
 function saveHandlePgn(handle:string=LICHESS_HANDLE){
+    if(handle=="") return
+
     let pgn=games.map((game:any)=>new LichessGame().fromJson(game).reportPgn()).join("\n\n")
 
     writeTextFile(handlePathPgn(),pgn)
@@ -39,7 +49,7 @@ function setHandle(handle:string){
     saveHandlePgn()
 }
 
-function fetchGames(){
+function fetchGames(handle:string=LICHESS_HANDLE){
     console.log(`fetching games for ${LICHESS_HANDLE}`)
 
     if(LICHESS_HANDLE=="") return
@@ -49,12 +59,14 @@ function fetchGames(){
     lgs.fetch(function(){
         if(lgs.nbResults>0){
             let nbResults=lgs.nbResults
+            lastNbResults=nbResults
             console.log(`fetched current page, results: ${nbResults}`)        
             let numGames=games.length            
             let bestNetAdd=0
             let bestPage=1
             if(numGames>=nbResults){
                 console.log(`games up to date`)
+                console.log(`status: sync ${handle} games synced ${games.length} up to date`)
                 return
             }
             let bestNb=10

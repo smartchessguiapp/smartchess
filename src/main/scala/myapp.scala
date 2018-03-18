@@ -37,6 +37,8 @@ object MyApp
 
 	var pgnsyncProc:Proc=null
 
+	var syncstatus:String="no sync"
+
 	////////////////////////////////////////////////////////////////////
 	// access shorthands
 

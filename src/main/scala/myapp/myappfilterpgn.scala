@@ -239,7 +239,7 @@ object MyAppFilterPgn
 				whiterating=dummy.get_header("WhiteElo").toInt
 				blackrating=dummy.get_header("BlackElo").toInt
 			}catch{case e:Throwable=>{}}
-			var plycount=0
+			var plycount=80
 			try{
 				plycount=dummy.get_header("PlyCount").toInt
 			}catch{case e:Throwable=>{}}

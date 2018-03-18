@@ -230,6 +230,16 @@ object Help
 				title="Tools menu",
 				paragraphs=List(
 					Paragraph(
+						title="Sync lichess book",
+						ditems=List(
+							TextItem(s"""
+								|If you have synchronized a lichess PGN, then you can use this tool to create a white and a black book from it.
+								|The games will be filtered using the Filter PGN settings.
+								|The generated books will be called [handle]_white and [handle]_black, where handle is the lichess handle set in Profile.
+							""".stripMargin)
+						)
+					),
+					Paragraph(
 						title="Rating charts",
 						ditems=List(
 							TextItem(s"""
@@ -1288,6 +1298,27 @@ object Help
 								|System log logs all events in the GUI. When performing long operations you are redirected 
 								|to the "System log" tab so that you can follow the progress of the operation. The "Execqueue" 
 								|and "Queuelog" tabs provide developer's system information not of interest to the general user.
+							""".stripMargin)
+						)
+					)
+				)
+			),
+			Chapter(
+				title="PGN sync",
+				paragraphs=List(
+					Paragraph(
+						title="About PGN sync",
+						ditems=List(
+							TextItem(s"""
+								|PGN sync lets you synchronize lichess games of the handle set in Profile to a local PGN.
+							""".stripMargin)
+						)
+					),
+					Paragraph(
+						title="System requirements",
+						ditems=List(
+							TextItem(s"""
+								|You have to install Node.js on your system to be able to use this feature.
 							""".stripMargin)
 						)
 					)
