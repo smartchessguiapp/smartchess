@@ -99,7 +99,7 @@ function saveHandleJson(handle = LICHESS_HANDLE) {
     else {
         let jsonText = JSON.stringify(games);
         writeTextFile(handlePathJson(), jsonText);
-        console.log(`status: sync ${handle} games synced ${games.length}${lastNbResults == null ? ` querying...` : `total ${lastNbResults}`}`);
+        console.log(`status: sync ${handle} games synced ${games.length}${lastNbResults == null ? ` querying...` : ` total ${lastNbResults}`}`);
     }
 }
 function saveHandlePgn(handle = LICHESS_HANDLE) {

@@ -18,7 +18,7 @@ function saveHandleJson(handle:string=LICHESS_HANDLE){
 
         writeTextFile(handlePathJson(),jsonText)
 
-        console.log(`status: sync ${handle} games synced ${games.length}${lastNbResults==null?` querying...`:`total ${lastNbResults}`}`)
+        console.log(`status: sync ${handle} games synced ${games.length}${lastNbResults==null?` querying...`:` total ${lastNbResults}`}`)
     }    
 }
 
