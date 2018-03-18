@@ -291,6 +291,7 @@ object MyActor extends Module
 
 	def Log(what:String)
 	{
+		println("log: "+what)
 		MyActor.queuedExecutor ! ExecutionItem(client="System Log",code=new Runnable{def run{
 			val stime=GetFormattedTime
 			val logline=s"""

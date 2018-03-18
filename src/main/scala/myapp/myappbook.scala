@@ -60,7 +60,9 @@ object MyAppBook
 
 		book.Load
 
-		OpenAuxBooks()
+		MyActor.queuedExecutor ! ExecutionItem(client="SetCurrentBook",code=new Runnable{def run{
+			OpenAuxBooks()
+		}})						            		
 	}
 
 	def AddPositionToBook(tfen:String):BookPosition =

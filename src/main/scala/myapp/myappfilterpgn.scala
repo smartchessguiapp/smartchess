@@ -22,9 +22,12 @@ object MyAppFilterPgn
 		GetMyText("{filterplayerblack}").SetText(filterplayerblack)
 	}
 
-	def HandleColor(color:String){
+	var handlecolordone:Boolean=false
+
+	def HandleColor(color:String){		
 		if(color=="white") SetSearchProfile(PgnSync.bookName("white"),GetMyHandle,"")
 		else SetSearchProfile(PgnSync.bookName("black"),"",GetMyHandle)
+		handlecolordone=true
 	}
 
 	def FilterPGN
@@ -147,8 +150,12 @@ object MyAppFilterPgn
 		}
 	}
 
+	var filteraborted=false
+
 	def FilterSearchFunc
 	{
+		filteraborted=false
+
 		DataUtils.mkdirs(List("stuff",board.variant,"filtered"))
 
 		val filterinputfilename=GS("{components}#{filterinputfilename}#{path}","")
@@ -197,6 +204,8 @@ object MyAppFilterPgn
 
 		for(pgn <- pgns if(count < filtermaxgames))
 		{
+			if(filteraborted) return
+
 			total+=1
 
 			dummy.parse_pgn(pgn,head_only=true)
