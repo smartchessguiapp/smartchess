@@ -96,6 +96,9 @@ function handlePathPgn(handle = LICHESS_HANDLE) {
 function handlePathChartPgn(handle = LICHESS_HANDLE) {
     return `chartpgns/${handle}.pgn`;
 }
+function handlePathChartShortPgn(handle = LICHESS_HANDLE) {
+    return `chartpgns/${handle}.short.pgn`;
+}
 function saveHandleJson(handle = LICHESS_HANDLE) {
     if (handle == "") {
         console.log(`status: sync no handle specified`);
@@ -132,6 +135,12 @@ function saveHandlePgn(handle = LICHESS_HANDLE) {
         chartgames.reverse();
         let chartpgn = chartgames.map((game) => new LichessGame().fromJson(game).reportPgn()).join("\n\n");
         writeTextFile(handlePathChartPgn(), chartpgn);
+        let chartgamesshort = chartgames;
+        if (chartgamesshort.length > 200) {
+            chartgamesshort = chartgamesshort.slice(0, 200);
+        }
+        let chartpgnshort = chartgamesshort.map((game) => new LichessGame().fromJson(game).reportPgn()).join("\n\n");
+        writeTextFile(handlePathChartShortPgn(), chartpgnshort);
     }
 }
 function setHandle(handle) {
