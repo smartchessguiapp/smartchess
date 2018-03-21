@@ -1066,7 +1066,8 @@ object Data
 
 case class SimpleDate(
 	var date:String=null,
-	var formats:Array[String]=Array("yyyy.MM.dd")
+	var formats:Array[String]=Array("yyyy.MM.dd"),
+	var time:String="00:00:00"
 )
 {
 	var d:java.util.Date=null
@@ -1083,12 +1084,20 @@ case class SimpleDate(
 	def isLaterThan(what:SimpleDate):Boolean =
 	{
 		if((d==null)||(what.d==null)) return true
-		d.compareTo(what.d)>=0
+		val cmp=d.compareTo(what.d)
+		if(cmp==0){
+			return time > what.time
+		}
+		cmp>=0
 	}
 
 	def isEarlierThan(what:SimpleDate):Boolean =
 	{
 		if((d==null)||(what.d==null)) return true
-		d.compareTo(what.d)<=0
+		val cmp=d.compareTo(what.d)
+		if(cmp==0){
+			return time < what.time
+		}
+		cmp<=0
 	}
 }

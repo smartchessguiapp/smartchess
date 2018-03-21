@@ -1,6 +1,7 @@
 *.exe
 
 /games
+/chartpgns
 
 /node_modules/
 npm-debug.log

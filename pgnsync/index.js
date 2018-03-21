@@ -93,6 +93,9 @@ function handlePathJson(handle = LICHESS_HANDLE) {
 function handlePathPgn(handle = LICHESS_HANDLE) {
     return `games/${handle}.pgn`;
 }
+function handlePathChartPgn(handle = LICHESS_HANDLE) {
+    return `chartpgns/${handle}.pgn`;
+}
 function saveHandleJson(handle = LICHESS_HANDLE) {
     if (handle == "") {
         console.log(`status: sync no handle specified`);
@@ -108,6 +111,28 @@ function saveHandlePgn(handle = LICHESS_HANDLE) {
         return;
     let pgn = games.map((game) => new LichessGame().fromJson(game).reportPgn()).join("\n\n");
     writeTextFile(handlePathPgn(), pgn);
+    if (games.length > 0) {
+        let lastgamejson = JSON.parse(JSON.stringify(games[games.length - 1]));
+        let lastgame = new LichessGame().fromJson(lastgamejson);
+        let newrating = lastgame.ratingForUser(handle) + lastgame.ratingDiffForUser(handle);
+        lastgamejson.players.white.userId = handle;
+        lastgamejson.players.white.rating = newrating;
+        lastgamejson.players.white.ratingDiff = 0;
+        lastgamejson.players.black.userId = handle;
+        lastgamejson.players.black.rating = newrating;
+        lastgamejson.players.black.ratingDiff = 0;
+        lastgamejson.moves = undefined;
+        lastgamejson.url = undefined;
+        lastgamejson.winner = undefined;
+        lastgamejson.status = undefined;
+        lastgamejson.turns = undefined;
+        lastgamejson.createdAt = lastgamejson.createdAt + 2000;
+        let chartgames = games.slice();
+        chartgames.push(lastgamejson);
+        chartgames.reverse();
+        let chartpgn = chartgames.map((game) => new LichessGame().fromJson(game).reportPgn()).join("\n\n");
+        writeTextFile(handlePathChartPgn(), chartpgn);
+    }
 }
 function setHandle(handle) {
     LICHESS_HANDLE = handle;
@@ -159,6 +184,7 @@ function fetchGames(handle = LICHESS_HANDLE) {
             lgs.with_moves = 1;
             lgs.fetch(function () {
                 let newgames = lgs.currentPageResults;
+                newgames.reverse();
                 console.log(`loaded ${newgames.length} games`);
                 let allids = games.map(game => game.id);
                 let totalpushed = 0;
@@ -614,6 +640,18 @@ if (!fileExists("games")) {
 }
 else {
     console.log("games directory exists");
+}
+if (!fileExists("chartpgns")) {
+    if (!createDir("chartpgns")) {
+        logErr("fatal: could not create chartpgns directory");
+        process.exit(1);
+    }
+    else {
+        console.log("chartpgns directory created ok");
+    }
+}
+else {
+    console.log("chartpgns directory exists");
 }
 setHandle(process.argv[2]);
 schedule.scheduleJob(`0 * * * * *`, function () {

@@ -10,6 +10,10 @@ function handlePathPgn(handle:string=LICHESS_HANDLE):string{
     return `games/${handle}.pgn`
 }
 
+function handlePathChartPgn(handle:string=LICHESS_HANDLE):string{
+    return `chartpgns/${handle}.pgn`
+}
+
 function saveHandleJson(handle:string=LICHESS_HANDLE){
     if(handle==""){
         console.log(`status: sync no handle specified`)
@@ -28,6 +32,34 @@ function saveHandlePgn(handle:string=LICHESS_HANDLE){
     let pgn=games.map((game:any)=>new LichessGame().fromJson(game).reportPgn()).join("\n\n")
 
     writeTextFile(handlePathPgn(),pgn)
+
+    if(games.length>0){
+        let lastgamejson=JSON.parse(JSON.stringify(games[games.length-1]))
+        let lastgame=new LichessGame().fromJson(lastgamejson)
+
+        let newrating=lastgame.ratingForUser(handle)+lastgame.ratingDiffForUser(handle)
+
+        lastgamejson.players.white.userId=handle
+        lastgamejson.players.white.rating=newrating
+        lastgamejson.players.white.ratingDiff=0
+        lastgamejson.players.black.userId=handle
+        lastgamejson.players.black.rating=newrating
+        lastgamejson.players.black.ratingDiff=0
+        lastgamejson.moves=undefined
+        lastgamejson.url=undefined
+        lastgamejson.winner=undefined
+        lastgamejson.status=undefined
+        lastgamejson.turns=undefined
+        lastgamejson.createdAt=lastgamejson.createdAt+2000
+
+        let chartgames=games.slice()
+        chartgames.push(lastgamejson)
+        chartgames.reverse()        
+
+        let chartpgn=chartgames.map((game:any)=>new LichessGame().fromJson(game).reportPgn()).join("\n\n")
+
+        writeTextFile(handlePathChartPgn(),chartpgn)
+    }
 }
 
 function setHandle(handle:string){
@@ -86,6 +118,7 @@ function fetchGames(handle:string=LICHESS_HANDLE){
             lgs.with_moves=1
             lgs.fetch(function(){
                 let newgames=lgs.currentPageResults
+                newgames.reverse()
                 console.log(`loaded ${newgames.length} games`)
                 let allids=games.map(game=>game.id)
                 let totalpushed=0
