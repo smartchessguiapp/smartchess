@@ -3,6 +3,7 @@
 const fs = require("fs");
 const fetch_ = require('node-fetch');
 const schedule = require('node-schedule');
+const dateFormat = require('dateformat');
 let LICHESS_HANDLE = "";
 const DEFAULT_VARIANT = "atomic";
 const ALL_VARIANTS = [
@@ -354,6 +355,9 @@ class LichessGame {
     displayVariant() {
         return VARIANT_DISPLAY_NAMES[this.variant];
     }
+    formatTimemsAsPgnDate(timems) {
+        return dateFormat(new Date(timems), "yyyy.mm.dd");
+    }
     reportPgn() {
         let pgn = `[White "${this.players.white.userIdLower()}"]
 [WhiteElo "${this.players.white.rating}"]
@@ -361,12 +365,12 @@ class LichessGame {
 [BlackElo "${this.players.black.rating}"]
 [Result "${this.resultF()}"]
 [Variant "${this.displayVariant()}"]
-[Date "${new Date(this.createdAt).toLocaleDateString()}"]
+[Date "${this.formatTimemsAsPgnDate(this.createdAt)}"]
 [Time "${new Date(this.createdAt).toLocaleTimeString()}"]
 [TimeControl "${this.clock.reportPgnField()}"]
 [Site "${this.url}"]
 
-${this.moves}`;
+${this.moves == "" ? "*" : this.moves}`;
         return pgn;
     }
     isUserWhite(userId) {

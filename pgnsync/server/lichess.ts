@@ -177,6 +177,10 @@ class LichessGame{
         return VARIANT_DISPLAY_NAMES[this.variant]
     }
 
+    formatTimemsAsPgnDate(timems:number):string{
+        return dateFormat(new Date(timems),"yyyy.mm.dd")
+    }
+
     reportPgn():string{
         let pgn=`[White "${this.players.white.userIdLower()}"]
 [WhiteElo "${this.players.white.rating}"]
@@ -184,12 +188,12 @@ class LichessGame{
 [BlackElo "${this.players.black.rating}"]
 [Result "${this.resultF()}"]
 [Variant "${this.displayVariant()}"]
-[Date "${new Date(this.createdAt).toLocaleDateString()}"]
+[Date "${this.formatTimemsAsPgnDate(this.createdAt)}"]
 [Time "${new Date(this.createdAt).toLocaleTimeString()}"]
 [TimeControl "${this.clock.reportPgnField()}"]
 [Site "${this.url}"]
 
-${this.moves}`
+${this.moves==""?"*":this.moves}`
         return pgn
     }
 
