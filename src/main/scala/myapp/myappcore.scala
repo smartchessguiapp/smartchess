@@ -600,6 +600,6 @@ object MyAppCore
 
 		EngineManager.enginelist ! ShutDownAllMsg(restartactorsystem=false)
 
-		pgnsyncProc.Destroy
+		if(pgnsyncProc!=null) pgnsyncProc.Destroy
 	}
 }

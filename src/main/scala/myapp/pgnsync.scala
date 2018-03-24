@@ -14,13 +14,20 @@ object PgnSync{
             pgnsyncProc.Destroy
         }
 
-        pgnsyncProc=Proc(
-			dir="pgnsync",
-			progandargs=List("node.exe","index.js",GetMyHandle),
-			ProcessOut=PgnSync.handlePgnSyncOut
-		)
+        val handle=GetMyHandle
 
-		pgnsyncProc.Start
+        if(handle==""){
+            syncstatus="no handle to sync"
+            UpdateTitle
+        }else{
+            pgnsyncProc=Proc(
+                dir="pgnsync",
+                progandargs=List("node.exe","index.js",GetMyHandle),
+                ProcessOut=PgnSync.handlePgnSyncOut
+            )
+
+            pgnsyncProc.Start
+        }        
     }
 
     def handlePgnSyncOut(buffer:String){
