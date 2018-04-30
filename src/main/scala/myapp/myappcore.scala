@@ -277,6 +277,7 @@ object MyAppCore
 					case "{refine3}" => Eval.EvalAll(3,deep=true)
 					case "{minimax}" => Minimax()
 					case "{minimaxremove}" => if(Confirm("Do you really want to remove subtree ?")) Minimax(remove=true)
+					case "{readfen}" => MyAppImpl.ReadFen
 					case _ =>
 					{
 						if(ev.parts.length>1)
@@ -520,6 +521,7 @@ object MyAppCore
 			|<button id="{evalall}" text="Eval all"/>
 			|<button id="{minimax}" text="Minimax"/>	
 			|<button id="{minimaxremove}" text="Remove"/>	
+			|<button id="{readfen}" text="RF"/>	
 			|</hbox>
 			|<webview id="{bookwebview}"/>
 			|</vbox>

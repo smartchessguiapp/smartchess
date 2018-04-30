@@ -106,6 +106,7 @@ object PgnSync{
             MyActor.Log("sync done")
             MyActor.queuedExecutor ! ExecutionItem(client="SyncLichessBook",code=new Runnable{def run{
                 CloseStage("{filterpgndialog}")
+                SetCurrentBook(bookName("black"))
                 SelectBookTab
                 Update
                 CloseAbortDialog

@@ -361,4 +361,14 @@ object MyAppImpl
 		Help.helptopics.create_wiki
 	}
 
+	def ReadFen
+	{
+		val fen=DataUtils.ReadFileToString("stuff/currentfen.txt")
+
+		g.set_from_fen(fen)
+		MyActor.Log("read currentfen: "+fen)
+
+		Update		
+	}
+
 }
