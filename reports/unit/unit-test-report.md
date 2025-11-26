@@ -149,13 +149,13 @@ JUnit XML: `reports/unit/junit-unit.xml` に出力済み。
 
 The following pytest test functions were discovered and mapped to report Test IDs. These tests were executed in the recent run (2025-11-24).
 
-- `tests/test_client.py::test_modbus_read` -> SC-TST-010 (SmartCheckerClient: modbus_read behavior)
-- `tests/test_client.py::test_get_di` -> SC-TST-010 (SmartCheckerClient: get_di behavior)
+- `gui/tests/test_client.py::test_modbus_read` -> SC-TST-010 (SmartCheckerClient: modbus_read behavior)
+- `gui/tests/test_client.py::test_get_di` -> SC-TST-010 (SmartCheckerClient: get_di behavior)
 
-- `tests/test_profile_manager.py::test_profiles_feature_removed_marker` -> SC-TST-000 (Profiles feature removed marker)
-- `tests/test_wsapp.py::test_wsapp_dispatch` -> SC-TST-011 (WSApp dispatch)
-- `tests/test_memobus.py::test_insert_log_pretty_print_and_tags` -> SC-TST-012 (MemobusFrame RX pretty-print)
-- `tests/test_memobus.py::test_log_capacity_trimming` -> SC-TST-012 (MemobusFrame log trimming)
+- `gui/tests/test_profile_manager.py::test_profiles_feature_removed_marker` -> SC-TST-000 (Profiles feature removed marker)
+- `gui/tests/test_wsapp.py::test_wsapp_dispatch` -> SC-TST-011 (WSApp dispatch)
+- `gui/tests/test_memobus.py::test_insert_log_pretty_print_and_tags` -> SC-TST-012 (MemobusFrame RX pretty-print)
+- `gui/tests/test_memobus.py::test_log_capacity_trimming` -> SC-TST-012 (MemobusFrame log trimming)
 
 （和訳）テストマッピング（pytest -> レポート ID）
 
