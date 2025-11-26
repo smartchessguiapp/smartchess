@@ -75,12 +75,12 @@ if (Test-Path 'tools\test_set_ao.py') {
 }
 
 # Start GUI (visible)
-Write-Output '[start-dev] Starting GUI (host_client/mf_tab_tk.py)'
-Start-Process -FilePath python -ArgumentList 'host_client\\mf_tab_tk.py' -WindowStyle Normal
+Write-Output '[start-dev] Starting GUI (host_client/pc/mf_tab_tk.py)'
+Start-Process -FilePath python -ArgumentList 'host_client\\pc\\mf_tab_tk.py' -WindowStyle Normal
 Start-Sleep -Seconds 2
 
 Write-Output '[start-dev] netstat / process list for verification'
 netstat -ano | findstr ":8000"
-Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -and ( $_.CommandLine -match 'mock_server.py' -or $_.CommandLine -match 'mf_tab_tk.py' ) } | Select-Object ProcessId, CommandLine | Format-List
+Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -and ( $_.CommandLine -match 'mock_server.py' -or $_.CommandLine -match 'pc\\mf_tab_tk.py' -or $_.CommandLine -match 'mf_tab_tk.py') } | Select-Object ProcessId, CommandLine | Format-List
 
-Write-Output '[start-dev] Done. If the GUI window is not visible, run: $env:PYTHONPATH="."; python host_client\\mf_tab_tk.py'
+Write-Output '[start-dev] Done. If the GUI window is not visible, run: $env:PYTHONPATH="."; python host_client\\pc\\mf_tab_tk.py'

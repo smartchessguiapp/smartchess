@@ -89,7 +89,7 @@ netstat -ano | findstr ":8000"
 3. Run the GUI (visible window):
 
 ```powershell
-$env:PYTHONPATH='.'; Start-Process -FilePath python -ArgumentList 'host_client\mf_tab_tk.py' -WindowStyle Normal
+$env:PYTHONPATH='.'; Start-Process -FilePath python -ArgumentList 'host_client\pc\mf_tab_tk.py' -WindowStyle Normal
 ```
 
 4. Quick end-to-end test (AO set → WS broadcast):
@@ -103,7 +103,7 @@ Get-Content tools\test_set_ao.log -Tail 20
 Troubleshooting
 
 - If the GUI reports a WebSocket connection refused (WinError 10061), ensure the mock server is running and listening on port 8000. Use `netstat -ano | findstr ":8000"` to confirm.
-- If multiple `mock_server.py` or `mf_tab_tk.py` processes are running (you may see duplicate entries in `Get-CimInstance Win32_Process`), stop the extra processes with `Stop-Process -Id <PID> -Force` and start a single instance.
+- If multiple `mock_server.py` or `pc\\mf_tab_tk.py` processes are running (you may see duplicate entries in `Get-CimInstance Win32_Process`), stop the extra processes with `Stop-Process -Id <PID> -Force` and start a single instance.
 - The GUI's WS client includes a simple exponential-backoff retry and an HTTP health-check; if the server is starting slowly, the GUI should reconnect automatically within a few seconds.
 
 If you'd like, copy these commands into a short PowerShell script in `tools/` to automate startup for development.

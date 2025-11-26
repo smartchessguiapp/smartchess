@@ -1,0 +1,92 @@
+name: Python tests (GUI)
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.10, 3.11]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest responses websocket-client
+
+      - name: Run GUI tests
+        run: |
+          pytest -q gui/tests --maxfail=1 --disable-warnings --junitxml=reports/unit/junit-unit.xml
+
+      - name: Upload JUnit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-report
+          path: reports/unit/junit-unit.xml
+name: Python tests
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install system dependencies (Xvfb, tkinter)
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y python3-tk xvfb
+
+    - name: Cache pip
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r host_client/requirements.txt
+        pip install pytest
+
+    - name: Run pytest under Xvfb and produce JUnit XML
+      run: |
+        mkdir -p reports/unit
+        xvfb-run -a pytest -q --junitxml=reports/unit/junit-unit.xml
+
+    - name: Upload JUnit XML artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: junit-unit-xml
+        path: reports/unit/junit-unit.xml
+
+    - name: Upload entire reports folder
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-reports
+        path: reports

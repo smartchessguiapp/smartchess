@@ -1,0 +1,585 @@
+openapi: 3.0.3
+info:
+  title: SmartChecker Host ⇄ Raspberry Pi API
+  description: |
+    OpenAPI 3.0 定義 (v1) for SmartChecker Host ↔ Raspberry Pi service.
+    ベースパス: /api/v1
+  version: "1.0.0"
+servers:
+  - url: http://{rpi_host}:{port}/api/v1
+    variables:
+      rpi_host:
+        default: 192.168.50.2
+      port:
+        default: "8000"
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+  /system/info:
+    get:
+      summary: System information
+      responses:
+        '200':
+          description: System info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemInfoResponse'
+  /di:
+    get:
+      summary: Get DI current and pending
+      responses:
+        '200':
+          description: DI status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DIStatusResponse'
+  /di/pending:
+    put:
+      summary: Set DI pending byte
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DISetPendingRequest'
+      responses:
+        '200':
+          description: Pending set
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DIPendingResponse'
+  /di/start:
+    post:
+      summary: Apply pending DI (or override and apply)
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DIStartRequest'
+      responses:
+        '200':
+          description: DI started/applied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DIStatusResponse'
+  /di/stop:
+    post:
+      summary: Stop (set all DI OFF)
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: All DI set to 0
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DIStatusResponse'
+  /dac/status:
+    get:
+      summary: Get DAC status
+      responses:
+        '200':
+          description: DAC status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DACStatusWrapper'
+  /dac/command:
+    put:
+      summary: Update command frequency and accel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DACCommandRequest'
+      responses:
+        '200':
+          description: Command updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DACCommandResponse'
+  /dac/run:
+    post:
+      summary: Start DAC run (ramp up and enable output)
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DACRunRequest'
+      responses:
+        '200':
+          description: Run started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DACRunResponse'
+  /dac/stop:
+    post:
+      summary: Stop DAC (ramp down and disable)
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DACStopRequest'
+      responses:
+        '200':
+          description: Stopped
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericOKResponse'
+  /dac/vf:
+    put:
+      summary: Set V/f parameters
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VFRequest'
+      responses:
+        '200':
+          description: V/f updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VFResponse'
+  /dac/vmax-fixed:
+    put:
+      summary: Set fixed Vmax (disable V/f)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VmaxRequest'
+      responses:
+        '200':
+          description: Vmax applied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VmaxResponse'
+  /capture/start:
+    post:
+      summary: Start capture
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CaptureStartRequest'
+      responses:
+        '200':
+          description: Capture started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaptureStartResponse'
+        '409':
+          description: Capture already running
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /capture/stop:
+    post:
+      summary: Stop capture and optionally return data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CaptureStopRequest'
+      responses:
+        '200':
+          description: Capture stopped
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaptureDataResponse'
+  /capture/last:
+    get:
+      summary: Get last capture metadata
+      responses:
+        '200':
+          description: Last capture info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaptureLastResponse'
+  /inverter/status:
+    get:
+      summary: Get inverter status (if connected)
+      responses:
+        '200':
+          description: Inverter status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InverterStatusResponse'
+components:
+  schemas:
+    GenericOKResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          example: true
+    ErrorResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: object
+    HealthResponse:
+      allOf:
+        - $ref: '#/components/schemas/GenericOKResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                status:
+                  type: string
+                version:
+                  type: string
+                uptime_s:
+                  type: number
+    SystemInfoResponse:
+      allOf:
+        - $ref: '#/components/schemas/GenericOKResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                hostname:
+                  type: string
+                ip_address:
+                  type: string
+                model:
+                  type: string
+                fs_hz:
+                  type: integer
+                capture_hz:
+                  type: integer
+                lut_size:
+                  type: integer
+    DIStatus:
+      type: object
+      properties:
+        di_byte:
+          type: integer
+          format: int32
+        pending_di_byte:
+          type: integer
+          format: int32
+    DIStatusResponse:
+      allOf:
+        - $ref: '#/components/schemas/GenericOKResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/DIStatus'
+    DISetPendingRequest:
+      type: object
+      required: [di_byte]
+      properties:
+        di_byte:
+          type: integer
+          minimum: 0
+          maximum: 255
+    DIPendingResponse:
+      allOf:
+        - $ref: '#/components/schemas/GenericOKResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                pending_di_byte:
+                  type: integer
+    DIStartRequest:
+      type: object
+      properties:
+        di_byte:
+          type: integer
+          minimum: 0
+          maximum: 255
+    DACStatus:
+      type: object
+      properties:
+        cur_freq:
+          type: number
+        target_freq:
+          type: number
+        cmd_freq:
+          type: number
+        acc_time:
+          type: number
+        vf_enable:
+          type: boolean
+        vf_fbase:
+          type: number
+        vf_vbase:
+          type: number
+        vf_vboost:
+          type: number
+        vmax_applied:
+          type: number
+        output_enabled:
+          type: boolean
+    DACStatusWrapper:
+      allOf:
+        - $ref: '#/components/schemas/GenericOKResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                dac:
+                  $ref: '#/components/schemas/DACStatus'
+    DACCommandRequest:
+      type: object
+      properties:
+        freq_hz:
+          type: number
+          minimum: 0.0
+          maximum: 60.0
+        acc_s:
+          type: number
+          minimum: 0.0
+          maximum: 600.0
+      required: []
+    DACCommandResponse:
+      allOf:
+        - $ref: '#/components/schemas/GenericOKResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                cmd_freq:
+                  type: number
+                acc_time:
+                  type: number
+    DACRunRequest:
+      type: object
+      properties:
+        freq_hz:
+          type: number
+        acc_s:
+          type: number
+    DACRunResponse:
+      allOf:
+        - $ref: '#/components/schemas/GenericOKResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                state:
+                  type: string
+                target_freq:
+                  type: number
+    DACStopRequest:
+      type: object
+      properties:
+        acc_s:
+          type: number
+    VFRequest:
+      type: object
+      properties:
+        enable:
+          type: boolean
+        fbase:
+          type: number
+        vbase:
+          type: number
+        vboost:
+          type: number
+      required: [enable, fbase, vbase, vboost]
+    VFResponse:
+      allOf:
+        - $ref: '#/components/schemas/GenericOKResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                vf_enable:
+                  type: boolean
+                vf_fbase:
+                  type: number
+                vf_vbase:
+                  type: number
+                vf_vboost:
+                  type: number
+    VmaxRequest:
+      type: object
+      properties:
+        vmax_v:
+          type: number
+          minimum: 0.0
+          maximum: 200.0
+      required: [vmax_v]
+    VmaxResponse:
+      allOf:
+        - $ref: '#/components/schemas/GenericOKResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                vmax_applied:
+                  type: number
+                vf_enable:
+                  type: boolean
+    CaptureStartRequest:
+      type: object
+      properties:
+        sample_rate_hz:
+          type: number
+        max_duration_s:
+          type: number
+    CaptureStartResponse:
+      allOf:
+        - $ref: '#/components/schemas/GenericOKResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                capture_id:
+                  type: string
+                sample_rate_hz:
+                  type: number
+    CaptureStopRequest:
+      type: object
+      required: [capture_id]
+      properties:
+        capture_id:
+          type: string
+        return_data:
+          type: boolean
+        save_csv:
+          type: boolean
+    CaptureDataResponse:
+      allOf:
+        - $ref: '#/components/schemas/GenericOKResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                capture_id:
+                  type: string
+                sample_rate_hz:
+                  type: number
+                columns:
+                  type: array
+                  items:
+                    type: string
+                rows:
+                  type: array
+                  items:
+                    type: array
+                    items:
+                      type: number
+                csv_path:
+                  type: string
+                download_url:
+                  type: string
+    CaptureLastResponse:
+      allOf:
+        - $ref: '#/components/schemas/GenericOKResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                capture_id:
+                  type: string
+                sample_rate_hz:
+                  type: number
+                csv_path:
+                  type: string
+                rows:
+                  type: integer
+    InverterStatus:
+      type: object
+      properties:
+        connected:
+          type: boolean
+        run_state:
+          type: string
+        output_freq_hz:
+          type: number
+        output_current_a:
+          type: number
+        status_word:
+          type: integer
+        alarm_code:
+          type: integer
+        last_update_ms_ago:
+          type: integer
+    InverterStatusResponse:
+      allOf:
+        - $ref: '#/components/schemas/GenericOKResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/InverterStatus'
+  securitySchemes: {}
+
+x-websocket:
+  description: |
+    WebSocket endpoint: ws://{host}:{port}/ws/v1
+    Events:
+      - status.update
+      - capture.complete
+      - error
+
+tags:
+  - name: system
+    description: System and health
+  - name: di
+    description: Digital outputs (DI)
+  - name: dac
+    description: DAC control and state
+  - name: capture
+    description: Trace capture
+  - name: inverter
+    description: Optional inverter interface (RS-485)
+

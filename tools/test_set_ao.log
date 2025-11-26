@@ -1,0 +1,16 @@
+[2025-11-24 19:10:25] POST {'channel': 'ao1', 'value': 4.2, 'mode': '0-10V'} -> 200 {"ok": true, "data": {"ao1": 4.2}}
+[2025-11-24 19:53:04] POST {'channel': 'ao1', 'value': 4.2, 'mode': '0-10V'} -> 200 {"ok": true, "data": {"ao1": 4.2}}
+[2025-11-24 20:44:24] POST {'channel': 'ao1', 'value': 4.2, 'mode': '0-10V'} -> 200 {"ok": true, "data": {"ao1": 4.2}}
+[2025-11-24 20:46:21] POST {'channel': 'ao1', 'value': 4.2, 'mode': '0-10V'} -> 200 {"ok": true, "data": {"ao1": 4.2}}
+[2025-11-24 20:47:20] POST {'channel': 'ao1', 'value': 4.2, 'mode': '0-10V'} -> 200 {"ok": true, "data": {"ao1": 4.2}}
+[2025-11-24 20:48:44][2025-11-24 20:49:19][2025-11-24 20:51:50] POST {'channel': 'ao1', 'value': 4.2, 'mode': '0-10V'} -> 200 {"ok": true, "data": {"ao1": 4.2}}
+[2025-11-24 20:52:46] POST {'channel': 'ao1', 'value': 4.2, 'mode': '0-10V'} -> 200 {"ok": true, "data": {"ao1": 4.2}}
+[2025-11-24 21:00:29] POST {'channel': 'ao1', 'value': 4.2, 'mode': '0-10V'} -> 200 {"ok": true, "data": {"ao1": 4.2}}
+[2025-11-24 21:38:38] POST {'channel': 'ao1', 'value': 4.2, 'mode': '0-10V'} -> 200 {"ok": true, "data": {"ao1": 4.2}}
+[2025-11-24 22:02:23] POST {'channel': 'ao1', 'value': 4.2, 'mode': '0-10V'} -> 200 {"ok": true, "data": {"ao1": 4.2}}
+[2025-11-24 22:09:11] POST {'channel': 'ao1', 'value': 4.2, 'mode': '0-10V'} -> 200 {"ok": true, "data": {"ao1": 4.2}}
+[2025-11-25 05:55:11] POST {'channel': 'ao1', 'value': 4.2, 'mode': '0-10V'} -> 200 {"ok": true, "data": {"ao1": 4.2}}
+[2025-11-25 05:55:46] POST {'channel': 'ao1', 'value': 4.2, 'mode': '0-10V'} -> 200 {"ok": true, "data": {"ao1": 4.2}}
+[2025-11-25 06:02:00] POST {'channel': 'ao1', 'value': 4.2, 'mode': '0-10V'} -> 200 {"ok": true, "data": {"ao1": 4.2}}
+[2025-11-25 06:05:35] POST {'channel': 'ao1', 'value': 4.2, 'mode': '0-10V'} -> 200 {"ok": true, "data": {"ao1": 4.2}}
+[2025-11-25 06:06:00] POST {'channel': 'ao1', 'value': 4.2, 'mode': '0-10V'} -> 200 {"ok": true, "data": {"ao1": 4.2}}
