@@ -89,7 +89,7 @@ netstat -ano | findstr ":8000"
 3. Run the GUI (visible window):
 
 ```powershell
-$env:PYTHONPATH='.'; Start-Process -FilePath python -ArgumentList 'host_client\pc\mf_tab_tk.py' -WindowStyle Normal
+$env:PYTHONPATH='.'; Start-Process -FilePath python -ArgumentList 'gui\pc\mf_tab_tk.py' -WindowStyle Normal
 ```
 
 4. Quick end-to-end test (AO set → WS broadcast):

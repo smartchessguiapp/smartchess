@@ -18,9 +18,7 @@
 - テスト実行に必要な依存（`pytest` など）はこの環境にインストールされていません。ローカルで次のコマンドを実行して依存を入れてください（PowerShell の例）:
 
 ```powershell
-# 依存をインストール
-python -m pip install -r host_client/requirements.txt
-# または最小で pytest だけ入れる
+# 依存をインストール（注: このリポジトリに一括 requirements.txt が無い場合は最小依存を直接インストール）
 python -m pip install pytest responses websocket-client
 
 # テスト実行例（GUI テストのみ）

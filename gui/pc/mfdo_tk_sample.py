@@ -1,7 +1,7 @@
 """
-MFDO control panel sample (PC package copy)
+MFDO control panel sample (PC package)
 
-Placed under `host_client/pc` for clarity: PC-targeted GUI samples live here.
+Placed under `gui/pc` for clarity: PC-targeted GUI samples live here.
 """
 import math
 import threading

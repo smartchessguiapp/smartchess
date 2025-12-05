@@ -1,8 +1,8 @@
 """
-WS Tk sample (PC package copy)
+WS Tk sample (PC package)
 
 Wrapper that demonstrates connecting to the mock server and updating a small
-Tk GUI with incoming status.update messages. Copied under `host_client/pc`.
+Tk GUI with incoming status.update messages. Located under `gui/pc`.
 """
 import json
 import threading

@@ -161,8 +161,8 @@ The following pytest test functions were discovered and mapped to report Test ID
 
 以下の pytest テスト関数を検出し、レポート内の Test ID に紐付けました。これらのテストは 2025-11-24 の実行で通過しています。
 
-- `tests/test_client.py::test_modbus_read` -> SC-TST-010（SmartCheckerClient: modbus_read 挙動）
-- `tests/test_client.py::test_get_di` -> SC-TST-010（SmartCheckerClient: get_di 挙動）
+-- `gui/tests/test_client.py::test_modbus_read` -> SC-TST-010（SmartCheckerClient: modbus_read 挙動）
+-- `gui/tests/test_client.py::test_get_di` -> SC-TST-010（SmartCheckerClient: get_di 挙動）
 
 ## Execution Log
 

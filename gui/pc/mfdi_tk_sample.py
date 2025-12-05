@@ -1,8 +1,8 @@
 """
-MFDI Tkinter sample (PC package copy)
+MFDI Tkinter sample (PC package)
 
-This is a copy of the lightweight indicator sample placed under
-`host_client/pc` to make PC-targeted code explicit.
+This is a lightweight indicator sample located under
+`gui/pc` to make PC-targeted code explicit.
 """
 import json
 import threading

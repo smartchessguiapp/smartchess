@@ -17,7 +17,7 @@ For details see the <a href="https://github.com/smartchessguiapp/smartchess/wiki
 
 The repository layout was reorganized to separate PC GUI code from Raspberry Pi-specific code and to centralize GUI tests/reports.
 
-- PC GUI modules moved to `gui/pc/` (Tkinter samples and WS client samples). Do not edit old `host_client/pc/` copies — they have been removed.
+- PC GUI modules moved to `gui/pc/` (Tkinter samples and WS client samples). Do not edit old `host_client/pc/` copies — they have been removed; use `gui/pc/`.
 - Raspberry Pi placeholder package is at `raspberry_pi/pi/` for Pi-specific code.
 - GUI-related tests and test reports have been moved to `gui/tests/` and `gui/tests/reports/`.
 

@@ -8,8 +8,8 @@ Usage:
 Dependencies:
   pip install aiohttp
 
-Then run the GUI in another terminal (PC samples moved to `host_client/pc`):
-    python host_client/pc/ws_tk_sample.py
+Then run the GUI in another terminal (PC samples moved to `gui/pc`):
+    python gui/pc/ws_tk_sample.py
 
 The mock server listens on 0.0.0.0:8000 by default and exposes:
   - HTTP: /api/v1/di (GET), /api/v1/di/pending (PUT), /api/v1/di/start (POST), /api/v1/di/stop (POST)
