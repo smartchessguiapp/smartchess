@@ -23,6 +23,8 @@ The repository layout was reorganized to separate PC GUI code from Raspberry Pi-
 
 If you are maintaining CI or deployment scripts, update any references from `host_client.pc.*` or `host_client.ws_tk_sample` to `gui.pc.*`.
 
+Note: Known documentation and report references to these old paths have been updated in this branch. If your CI, external docs, or deployment scripts live outside the repository (Wiki, infra scripts), please update them too.
+
 For contributors: run tests from the repository root after activating the venv:
 
 ```powershell
