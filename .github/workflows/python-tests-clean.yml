@@ -2,9 +2,10 @@ name: Python tests (GUI - clean)
 
 on:
   pull_request:
-    branches: [ master ]
+    # include both 'main' and 'master' to support repositories using either default
+    branches: [ main, master ]
   push:
-    branches: [ master ]
+    branches: [ main, master ]
 
 jobs:
   test:
